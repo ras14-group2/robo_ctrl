@@ -9,7 +9,7 @@
 #include <std_msgs/String.h>
 #include <robo_globals.h>
 #include <mapper/WallInFront.h>
-#include <mapper/PathToObject.h>
+//#include <mapper/PathToObject.h>
 #include <cmath>
 #include <list>
 
@@ -82,7 +82,7 @@ public:
 	maze_navigator_node() : alpha(0.0175), alpha1(0.01), alpha_align(0.0195), v(.17), w(0), mode(STRAIGHT_FORWARD), prevmode(STRAIGHT_FORWARD), goalObject("red cube")
 	{
 		
-		pathClient = n_.serviceClient<mapper::PathToObject>("path_to_object");
+//		pathClient = n_.serviceClient<mapper::PathToObject>("path_to_object");
 		
 		hasIR = false;
 		n_ = ros::NodeHandle("~");
@@ -130,17 +130,17 @@ public:
 			
 			if (path.empty()) {
 				//Find a path to the new goal
-				mapper::PathToObject srv;
-				srv.request.start.x = curPosOri.linear.x;
-				srv.request.start.y = curPosOri.linear.y;
-				srv.request.object.data = goalObject.c_str();	//Dummy object
+//				mapper::PathToObject srv;
+//				srv.request.start.x = curPosOri.linear.x;
+//				srv.request.start.y = curPosOri.linear.y;
+//				srv.request.object.data = goalObject.c_str();	//Dummy object
 				
-				if (pathClient.call(srv)) {
-					path.clear();
-					for (int i = 0;i<srv.response.length.data;++i) {
-						path.push_back(srv.response.path[i]);
-					}
-				}
+//				if (pathClient.call(srv)) {
+//					path.clear();
+//					for (int i = 0;i<srv.response.length.data;++i) {
+//						path.push_back(srv.response.path[i]);
+//					}
+//				}
 			}
 			
 			
