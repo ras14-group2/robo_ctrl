@@ -13,11 +13,11 @@ int main(int argc, char **argv)
 
   ros::Publisher twist = n.advertise<geometry_msgs::Twist>("/motor_controller/twist", 1000);
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(50);
 
   geometry_msgs::Twist msg;
 
-  msg.linear.x = .5; // in [m/s]
+  msg.linear.x = .25; // in [m/s]
   msg.angular.z = 0; //
 
 

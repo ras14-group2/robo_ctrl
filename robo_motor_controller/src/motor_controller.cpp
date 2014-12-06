@@ -115,31 +115,53 @@ public:
      std::cerr << "Right W: " << estimated_w_[1] << std::endl;
      std::cerr << "wl: " << wl << std::endl;
      std::cerr << "wr: " << wr << std::endl;
-
-     pwm_[0] = (int) (actual_pwm[0] + alpha1 * (wl - estimated_w_[0])); //PWM1
-
-    if (pwm_[0]>255)
-     {
+	if (twist_[0]==0 && twist_[1]==0)
+	{
+		//special still mode
+		if ((estimated_w_[0]>0) && (estimated_w_[1]>0))
+		{
+		   pwm_[0] = -70;
+		   pwm_[1] = -70;
+		}
+		else if ((estimated_w_[0]<0) && (estimated_w_[1]>0))
+		{
+		   pwm_[0] =  70;
+		   pwm_[1] = -70;
+		}
+		else if ((estimated_w_[0]>0) && (estimated_w_[1]<0))
+		{
+		   pwm_[0] =  -70;
+		   pwm_[1] =   70;
+		}
+	}		
+	else 
+     	{
+		pwm_[0] = (int) (actual_pwm[0] + alpha1 * (wl - estimated_w_[0])); //PWM1
+		pwm_[1] = (int) (actual_pwm[1] + alpha2 * (wr - estimated_w_[1])); //PWM2
+	}
+	
+    	if (pwm_[0]>255)
+     	{
          pwm_[0] = 255;
-     }
+    	 }
 
-     if (pwm_[0]<-255)
-     {
+     	if (pwm_[0]<-255)
+     	{
          pwm_[0] =-255;
-     }
+     	}
 
-     pwm_[1] = (int) (actual_pwm[1] + alpha2 * (wr - estimated_w_[1])); //PWM2
+     	
 
-     if (pwm_[1]>255)
-     {
-      pwm_[1] = 255;
-     }
+     	if (pwm_[1]>255)
+     	{
+      	pwm_[1] = 255;
+     	}
 
-     if (pwm_[1]<-255)
-     {
-      pwm_[1] = -255;
-     }
-
+     	if (pwm_[1]<-255)
+     	{
+      	pwm_[1] = -255;
+     	}
+	
      return pwm_;
     }
 

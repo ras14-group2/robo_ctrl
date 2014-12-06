@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ras_lab1_cartesian_controllers)
+project(robo_cartesian_controllers)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -106,7 +106,8 @@ include_directories(
 add_executable(line_cartesian_controller src/line_cartesian_controller.cpp)
 add_executable(circle_cartesian_controller src/circle_cartesian_controller.cpp)
 add_executable(wall_following_controller src/wall_following_controller.cpp)
-
+add_executable(maze_navigator src/maze_navigator.cpp)
+add_executable(maze_mapping src/maze_mapping.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -120,6 +121,14 @@ target_link_libraries(circle_cartesian_controller
    ${catkin_LIBRARIES}
  )
 target_link_libraries(wall_following_controller
+   ${catkin_LIBRARIES}
+ )
+ 
+ target_link_libraries(maze_navigator
+   ${catkin_LIBRARIES}
+ )
+ 
+ target_link_libraries(maze_mapping
    ${catkin_LIBRARIES}
  )
 

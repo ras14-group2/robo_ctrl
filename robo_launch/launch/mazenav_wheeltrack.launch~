@@ -1,0 +1,26 @@
+<launch>
+
+  <!-- execute ir_reader -->
+  <node pkg="ir_reader" type="ir_reader_node" name="ir_reader_node" output="screen"/>
+
+  <!-- execute maze_navigator -->
+  <node pkg="robo_cartesian_controllers" type="maze_navigator" name="maze_navigator_node" output="screen"/>
+
+  <!-- execute PI controller -->
+  <node pkg="robo_motor_picontroller" type="robo_motor_picontroller_node" name="robo_motor_picontroller_node" output="screen" />
+		
+  <!-- execute IMU reader -->
+  <node pkg="imu_reader" type="imu_reader_node" name="imu_reader_node" output="screen"/>
+  
+  <!-- execute Wheel tracker -->
+  <node pkg="wheel_tracker" type="wheel_tracker_node" name="wheel_tracker_node" output="screen"/>
+
+<!--execute navigation plotter -->
+  <node pkg="navigation_plotter" type="navigation_plotter_node" name="navigation_plotter_node" output="screen"/>
+  
+  <!-- execute maze_mapping -->
+  <node pkg="robo_cartesian_controllers" type="maze_mapping" name="maze_mapping" output="screen"/>
+
+</launch>
+
+

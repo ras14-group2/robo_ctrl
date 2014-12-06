@@ -7,8 +7,9 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <robo_globals.h>
+#define STILLCONST 35
 
-static const double pi = acos(-1.0);
 
 class motor_controller
 {
@@ -22,21 +23,21 @@ private:
 	double du[2]; // delta control signal 'delta_u'
 	double wlr_[2];
 	double pwm_[2];
-	double actual_pwm[2];
+	double prev_pwm[2];
 
 public:
 
 	ros::NodeHandle n_;
 	ros::Subscriber twist_subscriber_;
 	ros::Subscriber encoders_subscriber_;
-	ros::Publisher pwm_publisher_;
+	ros::Publisher pwm_publisher_, ;
 	double twist_[2];
 	double encoder_[5];
 	const double control_frequency; // Control @ 10 Hz
 	const double b; // separation of the two central wheels in [m]
 	const double r; //  wheel radius in [m]
 
-	motor_controller() : ticks(360), b(0.206), r(0.0485), control_frequency(10.0)
+	motor_controller() : ticks(TICKSPR), b(WHEEL_BASE), r(WHEEL_RADIUS), control_frequency(CTRL_FREQ*5)
 	{
 		Kp[0] = 1.085; //0.09;
 		Kp[1] = 1.14;//0.103;
@@ -46,8 +47,8 @@ public:
 		wlr_[1] = 0;
 		pwm_[0] = 0;
 		pwm_[1] = 0;
-		actual_pwm[0] = 65;
-		actual_pwm[1] = 70;
+		prev_pwm[0] = 65;
+		prev_pwm[1] = 70;
 		e_prev[0] = 0;
 		e_prev[1] = 0;
 		n_ = ros::NodeHandle("~");
@@ -83,9 +84,39 @@ public:
 	// Update pwm signals
 	void computePwm ()
 	{
-		std::vector<double> estimated_w_;
-		estimated_w_ = std::vector<double>(2,0);
 
+		//Special case: linear velocity is 0, then stop dead!
+		if ((twist_[0] == 0.0) && (twist_[1] == 0.0)) {
+			prev_pwm[0] = 0.0;
+			pwm_[0] = 0.0;
+			prev_pwm[1] = 0.0;
+			pwm_[1] = 0.0;
+			return;
+		//Left wheel
+		//	if (encoder_[3]>0)
+		//	{
+		//  	pwm_[0] = -STILLCONST;
+		   //	prev_pwm[0] = -45;
+		//	}
+		//	if (encoder_[3]<0)
+		//	{
+		//   	pwm_[0] = STILLCONST;
+		   //	prev_pwm[0] = 45;
+		//	}
+		//	if (encoder_[2]>0)
+		//	{
+		//  	pwm_[1] = -STILLCONST;
+		   //	prev_pwm[1] = -45;
+		//	}
+		//	if (encoder_[2]<0)
+		//	{
+		//   	pwm_[0] = STILLCONST;
+		   //	prev_pwm[0] = -45;
+		//	}
+		//return;
+		}
+
+		double estimated_w_[2];
 		double delta_encoder[2];
 		delta_encoder[0] = (double) motor_controller::encoder_[3];
 		delta_encoder[1] = (double) motor_controller::encoder_[2];
@@ -94,13 +125,13 @@ public:
 //		std::cerr << "delta_encoder[1] = " << delta_encoder[1] << std::endl;
 
 		/*
-		estimated_w = (delta_encoder*2*pi*control_frequency)/(ticks_per_rev)
+		estimated_w = (delta_encoder*2*PI*control_frequency)/(ticks_per_rev)
 		pwm = pwm + alpha*(desired_w - estimated_w)
 		*/
 
 		for (int i = 0;i<2;++i) {
 			// Estimation
-			estimated_w_[i] = (delta_encoder[i]*2*pi*control_frequency)/ticks;
+			estimated_w_[i] = (delta_encoder[i]*2*PI*control_frequency)/ticks;
 
 			// Error calculation
 			e[i] = wlr_[i] - estimated_w_[i];
@@ -111,7 +142,7 @@ public:
 			e_prev[i] = e[i];
 
 			// control signal update
-			pwm_[i] = actual_pwm[i] + du[i];
+			pwm_[i] = prev_pwm[i] + du[i];
 			if (pwm_[i] > 255.0) {
 				pwm_[i] -= du[i];
 			}
@@ -119,7 +150,12 @@ public:
 				pwm_[i] -= du[i];
 			}
 			
-			actual_pwm[i] = pwm_[i];
+		//	if (fabs(pwm_[i])!=fabs(STILLCONST))			
+		//	{
+			prev_pwm[i] = pwm_[i];
+		//	}
+		//	else
+
 		}
 		
 //		std::cerr << "Ti[1] is " << Ti[1] << std::endl;
@@ -142,8 +178,8 @@ public:
 
 		computePwm();
 
-		std::cerr << "Left PWM: " << pwm_[0] << std::endl;
-		std::cerr << "Right PWM: " << pwm_[1] << std::endl;
+	//	std::cerr << "Left PWM: " << pwm_[0] << std::endl;
+	//	std::cerr << "Right PWM: " << pwm_[1] << std::endl;
 
 		ras_arduino_msgs::PWM msg;
 		msg.PWM1 = (int)pwm_[0];

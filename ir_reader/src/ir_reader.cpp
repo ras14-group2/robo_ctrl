@@ -2,6 +2,7 @@
 #include <std_msgs/Float64.h>
 #include <ras_arduino_msgs/ADConverter.h>
 #include <ir_reader/distance_readings.h>
+#include <robo_globals.h>
 
 
 
@@ -27,8 +28,16 @@ public:
 	ros::NodeHandle n_;
 	ros::Subscriber distance_subscriber_;
 	ros::Publisher cdistance_publisher_;
+	double alphama; // weight for exponential weighted moving average filter
+  double Ffront_left;
+  double Ffront_right;
+  double Fback_left;
+  double Fback_right;
+  double Ffront_center;
+  double Fback_center;
+  bool Fboolean;
 
-	ir_reader_node()
+	ir_reader_node() : alphama(0.7), Fboolean(0)
 //	sa(2963.0), sb(-0.047), sc(29.98), sd(-0.004048),
 //	//sa(37770), sb(-0.07152), sc(36.71), sd(-0.004758),
 //	la(249.7), lb(-0.01656), lc(31.15), ld(-0.002155)
@@ -117,13 +126,31 @@ public:
 
 		//double sensor_value = distance_sensor_->sample(distance);
 		ir_reader::distance_readings cdmsg;
+		
+		if (!Fboolean){
+        Ffront_left = res[0];
+        Fback_left = res[1];
+        Ffront_right = res[2];
+        Fback_right = res[3];
+        Ffront_center = res[4];
+        Fback_center = res[5];
+        Fboolean = 1;
+        }
 
-		cdmsg.front_left = res[0];
-		cdmsg.back_left= res[1];
-		cdmsg.front_right = res[2];
-		cdmsg.back_right = res[3];
-		cdmsg.front_center = res[4];
-		cdmsg.back_center = res[5];
+        Ffront_left = Ffront_left * (1-alphama) + res[0] * (alphama);
+        Fback_left = Fback_left * (1-alphama) + res[1] * (alphama);
+        Ffront_right = Ffront_right * (1-alphama) + res[2] * (alphama);
+        Fback_right = Fback_right * (1-alphama) + res[3] * (alphama);
+        Ffront_center = Ffront_center * (1-alphama) + res[4] * (alphama);
+        Fback_center = Fback_center * (1-alphama) + res[5] * (alphama);
+
+		cdmsg.header.stamp = ros::Time::now();
+		cdmsg.front_left = Ffront_left;
+		cdmsg.back_left= Fback_left;
+		cdmsg.front_right = Ffront_right;
+		cdmsg.back_right = Fback_right;
+		cdmsg.front_center = Ffront_center;
+		cdmsg.back_center = Fback_center;
 
 		cdistance_publisher_.publish(cdmsg);
 
@@ -139,7 +166,7 @@ int main(int argc, char **argv)
 
 	irrn.init();
 
-	ros::Rate loop_rate(10.0);
+	ros::Rate loop_rate(CTRL_FREQ*5);
 
 	while(irrn.n_.ok())
 	{

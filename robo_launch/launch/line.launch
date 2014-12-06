@@ -1,0 +1,9 @@
+<launch>
+
+  <!-- execute wall_following_controller -->
+  <node pkg="robo_cartesian_controllers" type="line_cartesian_controller" name="line_cartesian_controller" />
+
+  <!-- execute PI controller -->
+  <node pkg="robo_motor_picontroller" type="robo_motor_picontroller_node" name="robo_motor_picontroller_node" />
+
+</launch>

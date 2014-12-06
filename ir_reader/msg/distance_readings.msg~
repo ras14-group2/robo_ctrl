@@ -1,6 +1,6 @@
-Float64 front_left
-Float64 back_left
-Float64 front_right
-Float64 back_right
-Float64 front_center
-Float64 back_center
+float64 front_left
+float64 back_left
+float64 front_right
+float64 back_right
+float64 front_center
+float64 back_center
