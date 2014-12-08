@@ -151,7 +151,11 @@ public:
 		cdmsg.back_right = Fback_right;
 		cdmsg.front_center = Ffront_center;
 		cdmsg.back_center = Fback_center;
-
+		
+//		ROS_INFO("Front left %lf", Ffront_left);
+//		ROS_INFO("Back left %lf", Fback_left);
+//		ROS_INFO("Front right %lf", Ffront_right);
+//		ROS_INFO("Back right %lf", Fback_right);
 		cdistance_publisher_.publish(cdmsg);
 
 	}

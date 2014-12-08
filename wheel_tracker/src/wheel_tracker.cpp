@@ -29,7 +29,7 @@ public:
 	ros::Subscriber modeSub;
 	
  
-	wheel_tracker_node() : curAngle(0.0), curX(0.0), curY(0.0), DEGTOM( WHEEL_RADIUS*TWOPI/TICKSPR )
+	wheel_tracker_node() : curX(0.0), curY(0.0), DEGTOM( WHEEL_RADIUS*TWOPI/TICKSPR )
 	{
 		n_ = ros::NodeHandle("~");
 		encoders_subscriber_ = n_.subscribe("/arduino/encoders", 1, &wheel_tracker_node::update, this);
@@ -94,39 +94,48 @@ public:
 
 		double leftIrRelAngle = 100;
 		double rightIrRelAngle = 100;
-
+		double odomRelAngle =	floor((curAngle/(PI/2.0))+0.5) * PI/2.0;
 		if(in_mode == 1 || in_mode == 2){
 			ROS_INFO("am getting mode");
-		if(msg->front_left < 25 && msg->back_left < 25){
+		
+		if((fabs(msg->front_left - msg->back_left)<.3)||(fabs(msg->front_right - msg->back_right)<.3)&&(fabs(curAngle - odomRelAngle) < 0.15)){
+		ROS_INFO("adjusted angle");
+		curAngle = odomRelAngle;
 			//compute angle to left wall
-			double diff = msg->front_left - msg->back_left;
-			leftIrRelAngle = M_PI_2 - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+		//	double diff = msg->front_left - msg->back_left;
+		//	leftIrRelAngle = M_PI_2 - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+		//	ROS_INFO("left relative angle %lf", leftIrRelAngle*(180/PI));
 		}
-		if(msg->front_right < 25 && msg->back_right < 25){
-			double diff = msg->front_right - msg->back_right;
-			rightIrRelAngle = std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+	//	if(msg->front_right < 25 && msg->back_right < 25){
+	//		double diff = msg->front_right - msg->back_right;
+	//		rightIrRelAngle = std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+	//		ROS_INFO("right relative angle %lf", rightIrRelAngle*(180/PI));
 		}
 
-		ROS_INFO("old odomtry angle: %f", curAngle);
-		double odomRelAngle =	floor((curAngle/(PI/2.0))+0.5) * PI/2.0;
+		ROS_INFO("old odomtry angle: %lf", curAngle*(180/PI));
+		
+		ROS_INFO("relative odometry: %lf", odomRelAngle*(180/PI));
 //		double odomRelAngle = fmod(curAngle, M_PI_2);
-		double offset = curAngle - odomRelAngle;
-		ROS_INFO("relative odometry: %f", odomRelAngle);
-			if(fabs(odomRelAngle - leftIrRelAngle) < 0.2 && fabs(odomRelAngle - leftIrRelAngle) < fabs(odomRelAngle - rightIrRelAngle)){
-			ROS_INFO("am crrecting left");
+//		double offset = curAngle - odomRelAngle;
+	
+//		ROS_INFO("offset %lf", offset);
+//			if(fabs(odomRelAngle - leftIrRelAngle) < 0.2 && fabs(odomRelAngle - leftIrRelAngle) < fabs(odomRelAngle - rightIrRelAngle)){
+//		if(fabs(odomRelAngle - leftIrRelAngle) < fabs(odomRelAngle - rightIrRelAngle)){
+//			ROS_INFO("am crrecting left");
 	//		curAngle = offset + (9.5*odomRelAngle + .5*leftIrRelAngle) / 10.0;
-			curAngle = odomRelAngle + (9.5*offset + .5*leftIrRelAngle) / 10.0;
-		}
-			else if(fabs(odomRelAngle - rightIrRelAngle) < 0.2 && fabs(odomRelAngle - rightIrRelAngle) < fabs(odomRelAngle - leftIrRelAngle)){
-			ROS_INFO("am crrecting right");
-			curAngle = odomRelAngle + (9.5*offset + .5*rightIrRelAngle) / 10.0;
+	//		curAngle = odomRelAngle + (10*offset + 0*leftIrRelAngle) / 10.0;
+	//	}
+	//		else if(fabs(odomRelAngle - rightIrRelAngle) < 0.2 && fabs(odomRelAngle - rightIrRelAngle) < fabs(odomRelAngle - leftIrRelAngle)){
+	//		else if(fabs(odomRelAngle - rightIrRelAngle) < fabs(odomRelAngle - leftIrRelAngle)){
+	//		ROS_INFO("am crrecting right");
+	//		curAngle = odomRelAngle + (10*offset + 0*rightIrRelAngle) / 10.0;
 	//		curAngle = offset + (9.5*odomRelAngle + .5*rightIrRelAngle) / 10.0;
-		}
+	//	}
 
-		ROS_INFO("angle from IR: left: %f, right: %f", leftIrRelAngle, rightIrRelAngle);
-		ROS_INFO("new odometry angle: %f", curAngle);
+//		ROS_INFO("angle from IR: left: %f, right: %f", leftIrRelAngle, rightIrRelAngle);
+	//	ROS_INFO("new odometry angle: %f", curAngle);
 	}
-	}
+//	}
 
 };
 

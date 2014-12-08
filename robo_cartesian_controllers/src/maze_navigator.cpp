@@ -9,12 +9,12 @@
 #include <std_msgs/String.h>
 #include <robo_globals.h>
 #include <mapper/WallInFront.h>
-//#include <mapper/PathToObject.h>
+#include <mapper/PathToObject.h>
 #include <cmath>
 #include <list>
 
 
-#define MINDIST 12	//13 centimeters
+#define MINDIST 12	//12 centimeters
 #define STOPDIST 17	//17 centimeters
 
 #define IR_SHORT_LIMIT 25
@@ -73,6 +73,7 @@ private:
 public:
 
 	bool hasIR;
+	bool leftBool, rightBool;
 
 	ros::NodeHandle n_;
 	ros::Subscriber ir_reader_subscriber_, imu_subscriber_, encoders_subscriber_, odometry_subscriber_;
@@ -83,8 +84,10 @@ public:
 	{
 		
 //		pathClient = n_.serviceClient<mapper::PathToObject>("path_to_object");
-		
+		followsPath = false;
 		hasIR = false;
+		leftBool = false;
+		rightBool = false;
 		n_ = ros::NodeHandle("~");
 		ir_reader_subscriber_ = n_.subscribe("/ir_reader_node/cdistance", 1, &maze_navigator_node::irCallback, this);
 		encoders_subscriber_ = n_.subscribe("/arduino/encoders", 1, &maze_navigator_node::encodersCallback, this);
@@ -130,17 +133,17 @@ public:
 			
 			if (path.empty()) {
 				//Find a path to the new goal
-//				mapper::PathToObject srv;
-//				srv.request.start.x = curPosOri.linear.x;
-//				srv.request.start.y = curPosOri.linear.y;
-//				srv.request.object.data = goalObject.c_str();	//Dummy object
+				mapper::PathToObject srv;
+				srv.request.start.x = curPosOri.linear.x;
+				srv.request.start.y = curPosOri.linear.y;
+				srv.request.object.data = goalObject.c_str();	//Dummy object
 				
-//				if (pathClient.call(srv)) {
-//					path.clear();
-//					for (int i = 0;i<srv.response.length.data;++i) {
-//						path.push_back(srv.response.path[i]);
-//					}
-//				}
+				if (pathClient.call(srv)) {
+					path.clear();
+					for (int i = 0;i<srv.response.length.data;++i) {
+						path.push_back(srv.response.path[i]);
+					}
+				}
 			}
 			
 			
@@ -200,6 +203,7 @@ public:
 		out_twist.angular.z = 0.0;			
 		if (delta_enc[0] != 0 || delta_enc[1] != 0) {
 			//Do nothing
+			ROS_INFO("still in still");
 			return STILL;
 		}
 		
@@ -250,8 +254,8 @@ public:
 	void publish()
 	{
 		//ROS_INFO("The current angle is %lf", (angle*180)/M_PI);	//degrees
-		ROS_INFO("The current angle is %lf", angle);	//radians
-		ROS_INFO("The target angle is %lf", targetAngle);	//radians
+		//ROS_INFO("The current angle is %lf", angle);	//radians
+		//ROS_INFO("The target angle is %lf", targetAngle);	//radians
 		//ROS_INFO("IR front_left: [%lf]", in_ir.front_left);
 		//ROS_INFO("IR back_left: [%lf]", in_ir.back_left);
 		//ROS_INFO("IR front_right: [%lf]", in_ir.front_right);
@@ -294,9 +298,42 @@ public:
 
 
 			case LEFT_WALL_FOLLOW:
+		
+				if ((in_ir.front_left>25) && (in_ir.back_left>25)){								
+					if (leftBool == true){
+					//Advertise node creation request for left open spaces before still
+					if (!followsPath) {
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
+						leftBool == false;
+					} else {
+						//TODO Check if have arrived at the targetPoint
+					}
+				}
+				}
+				if ((in_ir.front_right>25) && (in_ir.back_right>25)){
+				if (rightBool == true){							
+					//Advertise node creation request for right open spaces before still
+					if (!followsPath) {
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
+						rightBool == false;
+					} else {
+						//TODO Check if have arrived at the targetPoint
+					}
+				}
+				}
+				
 				if (in_ir.front_center<STOPDIST || wallInFront) {
+	//					if (in_ir.front_center<STOPDIST) {
 					prevmode=mode;
 					mode = STILL;
+					leftBool = true;
+					rightBool= true;
 					//Stop and determine how to rotate
 	//				ROS_INFO("IR front_center inside switch : [%lf]", in_ir.front_center);
 					
@@ -316,6 +353,8 @@ public:
 				if (in_ir.front_left > IR_SHORT_LIMIT || in_ir.back_left > IR_SHORT_LIMIT) {
 					prevmode=mode;
 					mode = STRAIGHT_FORWARD;
+					leftBool = true;
+					rightBool= true;
 					break;
 				}
 				
@@ -325,7 +364,7 @@ public:
 				irdiff = in_ir.front_left - in_ir.back_left;
 				
 				out_twist.angular.z = alpha * (irdiff);// [m/s]
-				if(fabs(MINDIST-irav) > 0.5)		
+				if(fabs(MINDIST-irav) > 0.5)	
 					out_twist.angular.z += alpha1 * (irav - MINDIST);
 					
 				//out_twist.angular.z = alpha * (irav - MINDIST + (alpha1 * irdiff)); // [m/s]
@@ -336,9 +375,41 @@ public:
 
 
 			case RIGHT_WALL_FOLLOW:
+				if ((in_ir.front_left>25) && (in_ir.back_left>25)){								
+					if (leftBool == true){
+					//Advertise node creation request for left open spaces before still
+					if (!followsPath) {
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
+						leftBool == false;
+					} else {
+						//TODO Check if have arrived at the targetPoint
+					}
+				}
+				}
+				if ((in_ir.front_right>25) && (in_ir.back_right>25)){	
+				if (rightBool == true){						
+					//Advertise node creation request for right open spaces before still
+					if (!followsPath) {
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
+						rightBool == false;
+					} else {
+						//TODO Check if have arrived at the targetPoint
+					}
+				}
+				}
+				
 				if (in_ir.front_center<STOPDIST || wallInFront) {
+			//if (in_ir.front_center<STOPDIST ) {
 					prevmode=mode;
 					mode = STILL;
+					leftBool = true;
+					rightBool= true;
 	//				ROS_INFO("IR front_center inside switch : [%lf]", in_ir.front_center);
 					
 					//Advertise node creation request
@@ -356,6 +427,8 @@ public:
 				if (in_ir.front_right > IR_SHORT_LIMIT || in_ir.back_right > IR_SHORT_LIMIT) {
 					prevmode=mode;
 					mode = STRAIGHT_FORWARD;
+					leftBool = true;
+					rightBool= true;
 					break;
 				}		
 			  
@@ -381,7 +454,7 @@ public:
 					prevmode = mode;
 					mode = STILL;
 				}	
-				out_twist.angular.z = 1;	
+				out_twist.angular.z = .9;	
 	//			out_twist.angular.z = ((M_PI_2-fabs(angle-refAngle))*1.5) + 0.6;	
 				out_twist.linear.x = 0.0;
 				break;
@@ -398,7 +471,7 @@ public:
 					mode = STILL;
 				}
 //					out_twist.angular.z = -((M_PI_2-fabs(angle-refAngle))*1.5) - 0.6;
-				out_twist.angular.z = -1;//-(M_PI_2-fabs(angle-refAngle))*.8;
+				out_twist.angular.z = -.9;//-(M_PI_2-fabs(angle-refAngle))*.8;
 				out_twist.linear.x = 0.0;
 				break;
 
@@ -406,6 +479,7 @@ public:
 			case STRAIGHT_FORWARD:
 				//TODO
 				if (in_ir.front_center < STOPDIST || wallInFront) {
+		//		if (in_ir.front_center < STOPDIST) {
 					prevmode=mode;
 					mode = STILL;	//Stop
 					
@@ -439,7 +513,7 @@ public:
 					mode = STRAIGHT_FORWARD;
 					break;
 				}	
-				if (fabs(in_ir.front_right - in_ir.back_right) > 3.5) {
+				if (fabs(in_ir.front_right - in_ir.back_right) > 3) {
 					out_twist.angular.z = -alpha_align*3* (in_ir.front_right - in_ir.back_right);
 				} else {
 						prevmode = mode;
@@ -454,7 +528,7 @@ public:
 					mode = STRAIGHT_FORWARD;
 					break;
 				}
-				if (fabs(in_ir.front_left - in_ir.back_left) > 3.5) {
+				if (fabs(in_ir.front_left - in_ir.back_left) > 3) {
 					out_twist.angular.z = alpha_align*3* (in_ir.front_left - in_ir.back_left);
 				} else {
 						prevmode = mode;
@@ -467,9 +541,10 @@ public:
 		twist_publisher_.publish(out_twist);
 		mode_publisher_.publish(out_mode);
 		prev_mode_publisher_.publish(out_previous_mode);
-//		ROS_INFO("the twist is = %lf", out_twist.angular.z);
-//		ROS_INFO("The current mode is %s", MODE_NAMES[mode]);
-//		ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
+	//	ROS_INFO("the linear twist is = %lf", out_twist.linear.x);
+	//	ROS_INFO("the twist is = %lf", out_twist.angular.z);
+	//	ROS_INFO("The current mode is %s", MODE_NAMES[mode]);
+	//	ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
 	}
 };
 
