@@ -19,7 +19,7 @@
   <arg name="depth_camera_info_url" default="" />
 
   <!-- Hardware depth registration -->
-  <arg name="depth_registration" default="false" />
+  <arg name="depth_registration" default="true" />
 
   <!-- Driver parameters -->
   <arg name="color_depth_synchronization"     default="false" />
@@ -121,8 +121,8 @@
   <!-- execute camera calibration -->
   <node pkg="calibration" type="calibration_node" name="calibration_node" />
 
-  <!-- execute cloud preparation -->
-  <node pkg="cloud_preparation" type="cloud_preparation_node" name="cloud_preparation_node" />
+  <!-- execute cloud preparation (should not be needed any more)-->
+  <!-- <node pkg="cloud_preparation" type="cloud_preparation_node" name="cloud_preparation_node" /> -->
 
   <!-- execute object_finder -->
   <node pkg="object_finder" type="object_finder_node" name="object_finder_node" />
