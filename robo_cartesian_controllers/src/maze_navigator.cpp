@@ -196,23 +196,25 @@ public:
 				int dir;
 				if (abs(curPosOri.linear.x - next.x) > abs(curPosOri.linear.y - next.y)) {
 					if (curPosOri.linear.x > next.x) {
-						dir = 2;	//west
+                        dir = 0;	//west
 					} else {
-						dir = 0;	//east
+                        dir = 2;	//east
 					}
 				} else {
 					if (curPosOri.linear.y > next.y) {
-						dir = 3;	//south
+                        dir = 1;	//south
 					} else {
-						dir = 1;	//north
-					}
+                        dir = 3;	//north
+                    }
 				}
 				int curDir = (int)(floor(angle/(PI/2.0)+0.5));	//Find the closest NSWE orientation
 				if (curDir >= 0) {
 					curDir = curDir % 4;
 				} else {
-					curDir = (curDir + MAXINT) % 4;
+                    curDir = (curDir + 400000000) % 4;
 				}
+
+                ROS_INFO("current direction: %d, target direction: %d", curDir, dir);
 				
 				if (dir == curDir) {	//No turn required
 					targetPos = path.front();
@@ -222,6 +224,8 @@ public:
 						//We shouldn't go there - just observe from where we are standing.
 						//TODO Decide what to do next. I don't know if we will be given a new object
 						//to find the path to, or if something else should be done.
+
+                        followsPath = false; //for testing, probably needed to be changed
 					} else {
 						mode = STRAIGHT_FORWARD;
 					}
