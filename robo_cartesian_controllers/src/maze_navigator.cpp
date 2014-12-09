@@ -156,10 +156,12 @@ public:
 
 
 	void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
+        ROS_INFO("received path to unknown part of the maze");
 		followsPath = true;
 		path.clear();
 		for(size_t i = 0; i < msg->points.size(); i++){
 			path.push_back(msg->points[i]);
+            ROS_INFO("(%f, %f)", msg->points[i].x, msg->points[i].y);
         }
         targetPos.x = curPosOri.linear.x;
         targetPos.y = curPosOri.linear.y;
@@ -170,6 +172,7 @@ public:
 	int decideNextMode() {
 		
 		if (followsPath) {
+            ROS_INFO("following path");
 			
 //			if (path.empty()) {
 
@@ -196,6 +199,7 @@ public:
 			if (fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT && 
 			fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT) {
 				//Close enough
+                ROS_INFO("reached node (%f, %f)", targetPos.x, targetPos.y);
 
                 if(path.empty()){
                     mode = STRAIGHT_FORWARD;
