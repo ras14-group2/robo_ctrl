@@ -10,6 +10,7 @@
 #include <robo_globals.h>
 #include <mapper/WallInFront.h>
 #include <mapper/PathToObject.h>
+#include <mapper/PathToUnknown.h>
 #include <cmath>
 #include <list>
 
@@ -62,6 +63,7 @@ private:
 	double irav; //IR_sensors average
 	ros::ServiceClient client; //client for map service
 	ros::ServiceClient pathClient;
+    ros::Subscriber pathToUnknownSub;
 	int updateCounter;
 
 	geometry_msgs::Twist out_twist;
@@ -97,6 +99,7 @@ public:
 		encoders_subscriber_ = n_.subscribe("/arduino/encoders", 1, &maze_navigator_node::encodersCallback, this);
 		imu_subscriber_ = n_.subscribe("/imu_angle", 1, &maze_navigator_node::imuAngleCallback, this);
 		odometry_subscriber_ = n_.subscribe("/posori/Twist", 1, &maze_navigator_node::odometryCallback, this);
+        pathToUnknownSub = n_.subscribe("/mapper/pathToUnknown", 1, &maze_navigator_node::pathToUnknownCallback, this);
 		twist_publisher_ = n_.advertise<geometry_msgs::Twist>("/motor_controller/twist", 1000);
 		//Rohit: publish mode
 		//mode_publisher_ = n_.advertise<std_msgs::String>("/maze_navigator/mode", 1000);
@@ -129,6 +132,14 @@ public:
 		curPosOri = msg->twist;
 		angle = curPosOri.angular.z;
 	}
+
+    void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
+        followsPath = true;
+        path.clear();
+        for(size_t i = 0; i < msg->points.size(); i++){
+            path.push_back(msg->points[i]);
+        }
+    }
 	
 	//From still, decide what the next mode should be
 	int decideNextMode() {
