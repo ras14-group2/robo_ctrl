@@ -57,10 +57,10 @@ public:
 			if(fl_ir < 25 && bl_ir < 25){
 				if(fl_ir < bl_ir){
 					double diff = bl_ir - fl_ir;
-					curAngle = M_PI_2 + std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+                    curAngle = std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
 				}else if(fl_ir > bl_ir){
 					double diff = fl_ir - bl_ir;
-					curAngle = M_PI_2 - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+                    curAngle = (2*M_PI) - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
 				}else{
 					curAngle = 0;
 				}
@@ -68,10 +68,10 @@ public:
 			else if(fr_ir < 25 && br_ir < 25){
 				if(fr_ir < br_ir){
 					double diff = br_ir - fr_ir;
-					curAngle = M_PI_2 - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+                    curAngle = (2*M_PI) - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
 				}else if(fr_ir > br_ir){
 					double diff = fr_ir - br_ir;
-					curAngle = M_PI_2 + std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+                    curAngle = std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
 				}else{
 					curAngle = 0;
 				}
@@ -129,7 +129,7 @@ public:
 
 		double leftIrRelAngle = 100;
 		double rightIrRelAngle = 100;
-		double odomRelAngle =	floor((curAngle/(PI/2.0))+0.5) * PI/2.0;
+        double odomRelAngle =	floor((curAngle/(PI/2.0))+0.5) * PI/2.0; //correct formula?? check
 		if(in_mode == 1 || in_mode == 2){
 			ROS_INFO("am getting mode");
 
@@ -151,7 +151,7 @@ public:
 	//		rightIrRelAngle = std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
 	//		ROS_INFO("right relative angle %lf", rightIrRelAngle*(180/PI));
 		hasIR = true;
-		}
+        }
 
 		ROS_INFO("old odomtry angle: %lf", curAngle*(180/PI));
 		
