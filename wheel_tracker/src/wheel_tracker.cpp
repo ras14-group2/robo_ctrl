@@ -98,7 +98,7 @@ public:
 		if(in_mode == 1 || in_mode == 2){
 			ROS_INFO("am getting mode");
 		
-		if((fabs(msg->front_left - msg->back_left)<.3)||(fabs(msg->front_right - msg->back_right)<.3)&&(fabs(curAngle - odomRelAngle) < 0.15)){
+		if((fabs(msg->front_left - msg->back_left)<.3)||(fabs(msg->front_right - msg->back_right)<.3)){
 		ROS_INFO("adjusted angle");
 		curAngle = odomRelAngle;
 			//compute angle to left wall

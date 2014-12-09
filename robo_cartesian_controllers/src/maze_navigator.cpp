@@ -31,6 +31,7 @@
 #define RIGHT_WALL_ALIGN 6
 #define LEFT_WALL_ALIGN 7
 #define CONFUSED 8
+#define ROBOLENGTH 25
 
 
 static const int MAXINT = (((1 << 30)-1) << 1)+1;	//2^31-1
@@ -69,11 +70,12 @@ private:
 	//std_msgs::String out_mode;
 	std_msgs::Int16 out_mode;
 	std_msgs::Int16 out_previous_mode;
+	geometry_msgs::Point p1_left,p2_left, p1_right, p2_right;
 
 public:
 
 	bool hasIR;
-	bool leftBool, rightBool;
+	bool leftBool1, leftBool2, rightBool1, rightBool2;
 
 	ros::NodeHandle n_;
 	ros::Subscriber ir_reader_subscriber_, imu_subscriber_, encoders_subscriber_, odometry_subscriber_;
@@ -86,8 +88,10 @@ public:
 //		pathClient = n_.serviceClient<mapper::PathToObject>("path_to_object");
 		followsPath = false;
 		hasIR = false;
-		leftBool = false;
-		rightBool = false;
+		leftBool1 = false;
+		rightBool1 = false;
+		leftBool2 = false;
+		rightBool2 = false;
 		n_ = ros::NodeHandle("~");
 		ir_reader_subscriber_ = n_.subscribe("/ir_reader_node/cdistance", 1, &maze_navigator_node::irCallback, this);
 		encoders_subscriber_ = n_.subscribe("/arduino/encoders", 1, &maze_navigator_node::encodersCallback, this);
@@ -211,11 +215,13 @@ public:
 		if (prevmode==RIGHT_WALL_ALIGN){ 	
 			prevmode=mode;
 			mode = RIGHT_WALL_FOLLOW;
+			rightBool1 = true;	
 		}
 		
 		else if (prevmode==LEFT_WALL_ALIGN){	
 			prevmode=mode;
-			mode = LEFT_WALL_FOLLOW;						
+			mode = LEFT_WALL_FOLLOW;
+			leftBool1 = true;						
 		}
 
 		else if(prevmode==LEFT_ROTATE){
@@ -298,7 +304,7 @@ public:
 
 
 			case LEFT_WALL_FOLLOW:
-		
+		/*
 				if ((in_ir.front_left>25) && (in_ir.back_left>25)){								
 					if (leftBool == true){
 					//Advertise node creation request for left open spaces before still
@@ -307,33 +313,56 @@ public:
 						p.x = curPosOri.linear.x;
 						p.y = curPosOri.linear.y;
 						node_creation_publisher_.publish(p);
-						leftBool == false;
+						leftBool = false;
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
-				}
-				}
-				if ((in_ir.front_right>25) && (in_ir.back_right>25)){
-				if (rightBool == true){							
-					//Advertise node creation request for right open spaces before still
-					if (!followsPath) {
-						geometry_msgs::Point p;
-						p.x = curPosOri.linear.x;
-						p.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p);
-						rightBool == false;
+		*/
+//				}
+//				}
+				if (in_ir.front_left>25){
+				if (!followsPath) {
+						if(leftBool1 == true){
+						p1_left.x = curPosOri.linear.x;
+						p1_left.y = curPosOri.linear.y;
+						leftBool1 = false;
+						leftBool2 = true;
+					}
+					
+					if(leftBool2 == true){
+					if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
+						p2_left.x = curPosOri.linear.x;
+						p2_left.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p2_left);
+						leftBool1 = true;
+						leftBool2 = false;
+					}
+					}
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
-				}
-				}
+					}
+//				if ((in_ir.front_right>25) && (in_ir.back_right>25)){
+//				if (rightBool == true){							
+//					//Advertise node creation request for right open spaces before still
+//					if (!followsPath) {
+//						geometry_msgs::Point p;
+//						p.x = curPosOri.linear.x;
+//						p.y = curPosOri.linear.y;
+//						node_creation_publisher_.publish(p);
+//						rightBool = false;
+//					} else {
+//						//TODO Check if have arrived at the targetPoint
+//					}
+//				}
+//				}
 				
 				if (in_ir.front_center<STOPDIST || wallInFront) {
 	//					if (in_ir.front_center<STOPDIST) {
 					prevmode=mode;
 					mode = STILL;
-					leftBool = true;
-					rightBool= true;
+	//				leftBool = true;
+	//				rightBool= true;
 					//Stop and determine how to rotate
 	//				ROS_INFO("IR front_center inside switch : [%lf]", in_ir.front_center);
 					
@@ -353,8 +382,8 @@ public:
 				if (in_ir.front_left > IR_SHORT_LIMIT || in_ir.back_left > IR_SHORT_LIMIT) {
 					prevmode=mode;
 					mode = STRAIGHT_FORWARD;
-					leftBool = true;
-					rightBool= true;
+//					leftBool = true;
+//					rightBool= true;
 					break;
 				}
 				
@@ -375,7 +404,30 @@ public:
 
 
 			case RIGHT_WALL_FOLLOW:
-				if ((in_ir.front_left>25) && (in_ir.back_left>25)){								
+			if (in_ir.front_right>25){
+				if (!followsPath) {
+						if(rightBool1 == true){
+						p1_right.x = curPosOri.linear.x;
+						p1_right.y = curPosOri.linear.y;
+						rightBool1 = false;
+						rightBool2 = true;
+					}
+					
+					if(rightBool2 == true){
+		if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
+						p2_right.x = curPosOri.linear.x;
+						p2_right.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p2_right);
+						leftBool1 = true;
+						leftBool2 = false;
+					}
+					}
+					} else {
+						//TODO Check if have arrived at the targetPoint
+					}
+					}
+			
+/*				if ((in_ir.front_left>25) && (in_ir.back_left>25)){								
 					if (leftBool == true){
 					//Advertise node creation request for left open spaces before still
 					if (!followsPath) {
@@ -383,13 +435,14 @@ public:
 						p.x = curPosOri.linear.x;
 						p.y = curPosOri.linear.y;
 						node_creation_publisher_.publish(p);
-						leftBool == false;
+						leftBool = false;
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
 				}
-				}
-				if ((in_ir.front_right>25) && (in_ir.back_right>25)){	
+			}
+*/
+/*				if ((in_ir.front_right>25) && (in_ir.back_right>25)){	
 				if (rightBool == true){						
 					//Advertise node creation request for right open spaces before still
 					if (!followsPath) {
@@ -397,19 +450,19 @@ public:
 						p.x = curPosOri.linear.x;
 						p.y = curPosOri.linear.y;
 						node_creation_publisher_.publish(p);
-						rightBool == false;
+						rightBool =	 false;
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
 				}
 				}
 				
-				if (in_ir.front_center<STOPDIST || wallInFront) {
+*/				if (in_ir.front_center<STOPDIST || wallInFront) {
 			//if (in_ir.front_center<STOPDIST ) {
 					prevmode=mode;
 					mode = STILL;
-					leftBool = true;
-					rightBool= true;
+	//				leftBool = true;
+	//				rightBool= true;
 	//				ROS_INFO("IR front_center inside switch : [%lf]", in_ir.front_center);
 					
 					//Advertise node creation request
@@ -427,8 +480,8 @@ public:
 				if (in_ir.front_right > IR_SHORT_LIMIT || in_ir.back_right > IR_SHORT_LIMIT) {
 					prevmode=mode;
 					mode = STRAIGHT_FORWARD;
-					leftBool = true;
-					rightBool= true;
+		//			leftBool = true;
+		//			rightBool= true;
 					break;
 				}		
 			  
@@ -496,9 +549,11 @@ public:
 				} else if (in_ir.front_left < IR_SHORT_LIMIT && in_ir.back_left < IR_SHORT_LIMIT) {
 					prevmode=mode;
 					mode = LEFT_WALL_FOLLOW;
+					leftBool1 = true;	
 				} else if (in_ir.front_right < IR_SHORT_LIMIT && in_ir.back_right < IR_SHORT_LIMIT) {
 					prevmode=mode;
 					mode = RIGHT_WALL_FOLLOW;
+					rightBool1 = true;	
 				} else {
 					//Keep Straight
 					out_twist.linear.x = .15;
@@ -543,8 +598,8 @@ public:
 		prev_mode_publisher_.publish(out_previous_mode);
 	//	ROS_INFO("the linear twist is = %lf", out_twist.linear.x);
 	//	ROS_INFO("the twist is = %lf", out_twist.angular.z);
-	//	ROS_INFO("The current mode is %s", MODE_NAMES[mode]);
-	//	ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
+		ROS_INFO("The current mode is %s", MODE_NAMES[mode]);
+		ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
 	}
 };
 
