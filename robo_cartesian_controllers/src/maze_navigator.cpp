@@ -147,6 +147,11 @@ public:
 		if (followsPath) {
 			
 			if (path.empty()) {
+
+                //Simple hack for testing maze exploration -- FIX LATER!!!
+                followsPath = false;
+                return STILL;
+
 				//Find a path to the new goal
 				mapper::PathToObject srv;
 				srv.request.start.x = curPosOri.linear.x;
