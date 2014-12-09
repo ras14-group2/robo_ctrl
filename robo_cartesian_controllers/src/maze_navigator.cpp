@@ -13,6 +13,9 @@
 #include <mapper/PathToUnknown.h>
 #include <cmath>
 #include <list>
+// basic file operations
+#include <iostream>
+#include <fstream>
 
 
 #define MINDIST 12	//12 centimeters
@@ -76,6 +79,8 @@ private:
 
 public:
 
+	std::ofstream path_file;
+
 	bool hasIR;
 	bool leftBool1, leftBool2, rightBool1, rightBool2;
 
@@ -88,7 +93,11 @@ public:
 	{
 		
 //		pathClient = n_.serviceClient<mapper::PathToObject>("path_to_object");
+
 		followsPath = false;
+
+		path_file.open("path.txt", std::ios::in); // open file for input operations
+
 		hasIR = false;
 		leftBool1 = false;
 		rightBool1 = false;
@@ -133,6 +142,7 @@ public:
 		angle = curPosOri.angular.z;
 	}
 
+
     void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
         followsPath = true;
         path.clear();
@@ -140,6 +150,15 @@ public:
             path.push_back(msg->points[i]);
         }
     }
+
+	//Integer to String convert
+	std::string n2s (int number)
+	{
+		std::ostringstream ss;
+		ss << number;
+		return ss.str();
+	}
+
 	
 	//From still, decide what the next mode should be
 	int decideNextMode() {
@@ -388,6 +407,13 @@ public:
 						p.x = curPosOri.linear.x;
 						p.y = curPosOri.linear.y;
 						node_creation_publisher_.publish(p);
+
+						//Write node position created on file
+						if (path_file.is_open()){
+							path_file << "Node ID" << n2s(p.x).c_str() <<" "<< n2s(p.y).c_str() << "\n";
+						}
+						else std::cout << "Unable to open file";
+
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -638,6 +664,10 @@ int main(int argc, char **argv)
 		}
 		ros::spinOnce();
 		loop_rate.sleep();
+	}
+
+	if(ros::isShuttingDown()){
+		mnnode.path_file.close(); //close file
 	}
 
 	return 0;
