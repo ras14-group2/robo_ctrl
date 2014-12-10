@@ -19,6 +19,13 @@ private:
  	int in_mode;
 	double leftIrRelAngle;
 	double rightIrRelAngle;
+	bool init; // initialisation of curAngle
+	bool hasIR; // first values from ir_node
+	double fl_ir; //front left IR
+	double bl_ir; //back left IR
+	double fr_ir; //front right IR
+	double br_ir; //back right IR
+
 
 public:
 
@@ -29,7 +36,7 @@ public:
 	ros::Subscriber modeSub;
 	
  
-	wheel_tracker_node() : curX(0.0), curY(0.0), DEGTOM( WHEEL_RADIUS*TWOPI/TICKSPR )
+	wheel_tracker_node() : init(true), hasIR(false),curX(0.0), curY(0.0), DEGTOM( WHEEL_RADIUS*TWOPI/TICKSPR )
 	{
 		n_ = ros::NodeHandle("~");
 		encoders_subscriber_ = n_.subscribe("/arduino/encoders", 1, &wheel_tracker_node::update, this);
@@ -46,6 +53,16 @@ public:
 		denc1 = (double)msg->delta_encoder1;
 		denc2 = (double)msg->delta_encoder2;
 		
+		if(init && hasIR){
+			if(fl_ir < 25 && bl_ir < 25){
+				curAngle = M_PI_2 - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+			}
+			else if(fr_ir < 25 && br_ir < 25){
+				curAngle = std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+			}
+			init = false;
+		}
+
 		//Compute new angle and position
 		double ad = (denc1-denc2)*DEGTOM/WHEEL_BASE;
 		double ld = (denc1+denc2)*DEGTOM/2.0;
@@ -97,8 +114,13 @@ public:
 		double odomRelAngle =	floor((curAngle/(PI/2.0))+0.5) * PI/2.0;
 		if(in_mode == 1 || in_mode == 2){
 			ROS_INFO("am getting mode");
+
+		fl_ir = msg->front_left;
+		bl_ir = msg->back_left;
+		fr_ir = msg->front_right;
+		br_ir = msg->back_right;
 		
-		if((fabs(msg->front_left - msg->back_left)<.3)||(fabs(msg->front_right - msg->back_right)<.3)){
+		if((fabs(fl_ir - bl_ir)<.3)||(fabs(fr_ir - br_ir)<.3)){
 		ROS_INFO("adjusted angle");
 		curAngle = odomRelAngle;
 			//compute angle to left wall
@@ -110,6 +132,7 @@ public:
 	//		double diff = msg->front_right - msg->back_right;
 	//		rightIrRelAngle = std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
 	//		ROS_INFO("right relative angle %lf", rightIrRelAngle*(180/PI));
+		hasIR = true;
 		}
 
 		ROS_INFO("old odomtry angle: %lf", curAngle*(180/PI));
