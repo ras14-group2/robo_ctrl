@@ -11,6 +11,7 @@
 #include <mapper/WallInFront.h>
 #include <mapper/PathToObject.h>
 #include <mapper/PathToUnknown.h>
+#include <object_finder/Positions.h>
 #include <cmath>
 #include <list>
 // basic file operations
@@ -86,7 +87,7 @@ public:
 	bool leftBool1, leftBool2, rightBool1, rightBool2;
 
 	ros::NodeHandle n_;
-	ros::Subscriber ir_reader_subscriber_, imu_subscriber_, encoders_subscriber_, odometry_subscriber_;
+	ros::Subscriber ir_reader_subscriber_, imu_subscriber_, encoders_subscriber_, odometry_subscriber_, obj_rec_;
 	ros::Publisher twist_publisher_, mode_publisher_, prev_mode_publisher_, node_creation_publisher_;
 	//alpha(0.0177) for wall-following without reference distance
 	//alpha(0.0245), alpha1(2.53586),
@@ -121,6 +122,7 @@ public:
 		imu_subscriber_ = n_.subscribe("/imu_angle", 1, &maze_navigator_node::imuAngleCallback, this);
 		odometry_subscriber_ = n_.subscribe("/posori/Twist", 1, &maze_navigator_node::odometryCallback, this);
 		pathToUnknownSub = n_.subscribe("/mapper/pathToUnknown", 1, &maze_navigator_node::pathToUnknownCallback, this);
+		obj_rec_ = n_.subscribe("/object_identifier/positions_in", 1, &maze_navigator_node::objRecCallback, this);
 		twist_publisher_ = n_.advertise<geometry_msgs::Twist>("/motor_controller/twist", 1000);
 		//Rohit: publish mode
 		//mode_publisher_ = n_.advertise<std_msgs::String>("/maze_navigator/mode", 1000);
@@ -152,6 +154,11 @@ public:
 	void odometryCallback(const geometry_msgs::TwistStamped::ConstPtr &msg) {
 		curPosOri = msg->twist;
 		angle = curPosOri.angular.z;
+	}
+
+	void objRecCallback(const object_finder::Positions::ConstPtr &msg) {
+		ROS_INFO("GOING TO SLEEP FOR 3 SECONDS");
+		ros::Duration(3).sleep(); // sleep for 3 second
 	}
 
 
