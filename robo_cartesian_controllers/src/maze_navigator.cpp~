@@ -13,10 +13,13 @@
 #include <mapper/PathToUnknown.h>
 #include <cmath>
 #include <list>
+<<<<<<< HEAD
 // basic file operations
 #include <iostream>
 #include <cstdio>
 //#include <fstream>
+=======
+>>>>>>> some IO removed + some stuff that maybe rohit did
 
 
 #define MINDIST 12	//12 centimeters
@@ -101,8 +104,12 @@ public:
 	maze_navigator_node() : alpha(0.0175), alpha1(0.01), alpha_align(0.0195), v(.17), w(0), mode(STRAIGHT_FORWARD), prevmode(STRAIGHT_FORWARD), goalObject("red cube")
 	{
 		
+<<<<<<< HEAD
 		//pathClient = n_.serviceClient<mapper::PathToObject>("path_to_object");
 
+=======
+//		pathClient = n_.serviceClient<mapper::PathToObject>("path_to_object");
+>>>>>>> some IO removed + some stuff that maybe rohit did
 		followsPath = false;
 		hasIR = false;
 		leftBool1 = false;
@@ -148,6 +155,7 @@ public:
 		angle = curPosOri.angular.z;
 	}
 
+<<<<<<< HEAD
 
 	void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
 	//void pathToUnknownCallback(const std_msgs::Int32[]::ConstPtr &msg){
@@ -158,6 +166,16 @@ public:
 		}
 	}
 
+=======
+    void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
+        followsPath = true;
+        path.clear();
+        for(size_t i = 0; i < msg->points.size(); i++){
+            path.push_back(msg->points[i]);
+        }
+    }
+	
+>>>>>>> some IO removed + some stuff that maybe rohit did
 	//From still, decide what the next mode should be
 	int decideNextMode() {
 		
@@ -194,6 +212,7 @@ public:
 				int dir;
 				if (abs(curPosOri.linear.x - next.x) > abs(curPosOri.linear.y - next.y)) {
 					if (curPosOri.linear.x > next.x) {
+<<<<<<< HEAD
 						dir = 0;	//west
 					} else {
 						dir = 2;	//east
@@ -203,16 +222,32 @@ public:
 						dir = 1;	//south
 					} else {
 						dir = 3;	//north
+=======
+						dir = 2;	//west
+					} else {
+						dir = 0;	//east
+					}
+				} else {
+					if (curPosOri.linear.y > next.y) {
+						dir = 3;	//south
+					} else {
+						dir = 1;	//north
+>>>>>>> some IO removed + some stuff that maybe rohit did
 					}
 				}
 				int curDir = (int)(floor(angle/(PI/2.0)+0.5));	//Find the closest NSWE orientation
 				if (curDir >= 0) {
 					curDir = curDir % 4;
 				} else {
+<<<<<<< HEAD
 					curDir = (curDir + 400000000) % 4;
 				}
 
 				ROS_INFO("current direction: %d, target direction: %d", curDir, dir);
+=======
+					curDir = (curDir + MAXINT) % 4;
+				}
+>>>>>>> some IO removed + some stuff that maybe rohit did
 				
 				if (dir == curDir) {	//No turn required
 					targetPos = path.front();
@@ -222,8 +257,11 @@ public:
 						//We shouldn't go there - just observe from where we are standing.
 						//TODO Decide what to do next. I don't know if we will be given a new object
 						//to find the path to, or if something else should be done.
+<<<<<<< HEAD
 
 						followsPath = false; //for testing, probably needed to be changed
+=======
+>>>>>>> some IO removed + some stuff that maybe rohit did
 					} else {
 						mode = STRAIGHT_FORWARD;
 					}
@@ -252,6 +290,7 @@ public:
 		if (prevmode==RIGHT_WALL_ALIGN){ 	
 			prevmode=mode;
 			rightBool1 = true;
+			leftBool1 = true; 
 			mode = RIGHT_WALL_FOLLOW;
 				
 		}
@@ -259,6 +298,7 @@ public:
 		else if (prevmode==LEFT_WALL_ALIGN){	
 			prevmode=mode;
 			leftBool1 = true;
+			rightBool1 = true;
 			mode = LEFT_WALL_FOLLOW;
 									
 		}
@@ -363,7 +403,8 @@ public:
 				if (in_ir.front_left>25){
 					if (!followsPath) {
 						if(leftBool1 == true){
-<<<<<<< HEAD
+/*<<<<<<< HEAD
+//not sure which version is right, please check
 							p1_left.x = curPosOri.linear.x;
 							p1_left.y = curPosOri.linear.y;
 							leftBool1 = false;
@@ -383,7 +424,7 @@ public:
 						//TODO Check if have arrived at the targetPoint
 					}
 				}
-=======
+=======*/
 						p1_left.x = curPosOri.linear.x;
 						p1_left.y = curPosOri.linear.y;
 						leftBool1 = false;
@@ -404,12 +445,28 @@ public:
 						rightBool2 = true;
 						ROS_INFO("In p1 left condition");
 					}
+					
+			
+				
+				if(rightBool2 == true){
+		if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
+						p2_right.x = curPosOri.linear.x;
+						p2_right.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p2_right);
+						rightBool1 = true;
+						rightBool2 = false;
+					}
+					}
+			
+				
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
+					
+					
 					}
 					
->>>>>>> worked on node publishing for topological map
+//>>>>>>> worked on node publishing for topological map
 //				if ((in_ir.front_right>25) && (in_ir.back_right>25)){
 //				if (rightBool == true){							
 //					//Advertise node creation request for right open spaces before still
@@ -436,7 +493,14 @@ public:
 					
 					//Advertise node creation request
 					if (!followsPath) {
+<<<<<<< HEAD
 						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
+=======
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
+>>>>>>> some IO removed + some stuff that maybe rohit did
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -503,7 +567,21 @@ public:
 						leftBool2 = true;
 						ROS_INFO("In p1 left condition");
 					}
+<<<<<<< HEAD
 >>>>>>> worked on node publishing for topological map
+=======
+					
+					if(leftBool2 == true){
+				if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
+						p2_left.x = curPosOri.linear.x;
+						p2_left.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p2_left);
+						leftBool1 = true;
+						leftBool2 = false;
+					}
+					}
+					
+>>>>>>> some IO removed + some stuff that maybe rohit did
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -648,11 +726,13 @@ public:
 				} else if (in_ir.front_left < IR_SHORT_LIMIT && in_ir.back_left < IR_SHORT_LIMIT) {
 					prevmode=mode;
 					leftBool1 = true;
+					rightBool1 = true;
 					mode = LEFT_WALL_FOLLOW;	
 				} else if (in_ir.front_right < IR_SHORT_LIMIT && in_ir.back_right < IR_SHORT_LIMIT) {
 					prevmode=mode;
 					mode = RIGHT_WALL_FOLLOW;
-					rightBool1 = true;	
+					rightBool1 = true;
+					leftBool1 = true;	
 				} else {
 					//Keep Straight
 					out_twist.linear.x = .15;
@@ -723,9 +803,12 @@ int main(int argc, char **argv)
 		loop_rate.sleep();
 	}
 
+<<<<<<< HEAD
 	if(ros::isShuttingDown()){
 		//
 	}
 
+=======
+>>>>>>> some IO removed + some stuff that maybe rohit did
 	return 0;
 }

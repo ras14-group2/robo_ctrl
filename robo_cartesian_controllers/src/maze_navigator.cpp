@@ -149,15 +149,14 @@ public:
 	}
 
 
-	void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
-	//void pathToUnknownCallback(const std_msgs::Int32[]::ConstPtr &msg){
-		followsPath = true;
-		path.clear();
-		for(size_t i = 0; i < msg->points.size(); i++){
-			path.push_back(msg->points[i]);
-		}
-	}
-
+    void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
+        followsPath = true;
+        path.clear();
+        for(size_t i = 0; i < msg->points.size(); i++){
+            path.push_back(msg->points[i]);
+        }
+    }
+    
 	//From still, decide what the next mode should be
 	int decideNextMode() {
 		
@@ -252,6 +251,7 @@ public:
 		if (prevmode==RIGHT_WALL_ALIGN){ 	
 			prevmode=mode;
 			rightBool1 = true;
+			leftBool1 = true; 
 			mode = RIGHT_WALL_FOLLOW;
 				
 		}
@@ -259,6 +259,7 @@ public:
 		else if (prevmode==LEFT_WALL_ALIGN){	
 			prevmode=mode;
 			leftBool1 = true;
+			rightBool1 = true;
 			mode = LEFT_WALL_FOLLOW;
 									
 		}
@@ -405,9 +406,25 @@ public:
 						rightBool2 = true;
 						ROS_INFO("In p1 left condition");
 					}
+					
+			
+				
+				if(rightBool2 == true){
+		if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
+						p2_right.x = curPosOri.linear.x;
+						p2_right.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p2_right);
+						rightBool1 = true;
+						rightBool2 = false;
+					}
+					}
+			
+				
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
+					
+					
 					}
 					
 //>>>>>>> worked on node publishing for topological map
@@ -437,7 +454,14 @@ public:
 					
 					//Advertise node creation request
 					if (!followsPath) {
+/*<<<<<<< HEAD
 						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
+=======*/
+//not sure which version is right, please check
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -479,7 +503,7 @@ public:
 							rightBool2 = true;
 						}
 					
-<<<<<<< HEAD
+/*<<<<<<< HEAD
 						if(rightBool2 == true){
 							if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
 								p2_right.x = curPosOri.linear.x;
@@ -489,7 +513,8 @@ public:
 								leftBool2 = false;
 							}
 						}
-=======
+=======*/
+//not sure which version is right, please check
 					
 					} else {
 						//TODO Check if have arrived at the targetPoint
@@ -504,7 +529,18 @@ public:
 						leftBool2 = true;
 						ROS_INFO("In p1 left condition");
 					}
->>>>>>> worked on node publishing for topological map
+
+//>>>>>>> worked on node publishing for topological map
+					
+					if(leftBool2 == true){
+				if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
+						p2_left.x = curPosOri.linear.x;
+						p2_left.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p2_left);
+						leftBool1 = true;
+						leftBool2 = false;
+					}
+					}
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -649,11 +685,13 @@ public:
 				} else if (in_ir.front_left < IR_SHORT_LIMIT && in_ir.back_left < IR_SHORT_LIMIT) {
 					prevmode=mode;
 					leftBool1 = true;
+					rightBool1 = true;
 					mode = LEFT_WALL_FOLLOW;	
 				} else if (in_ir.front_right < IR_SHORT_LIMIT && in_ir.back_right < IR_SHORT_LIMIT) {
 					prevmode=mode;
 					mode = RIGHT_WALL_FOLLOW;
-					rightBool1 = true;	
+					rightBool1 = true;
+					leftBool1 = true;	
 				} else {
 					//Keep Straight
 					out_twist.linear.x = .15;
@@ -727,6 +765,5 @@ int main(int argc, char **argv)
 	if(ros::isShuttingDown()){
 		//
 	}
-
 	return 0;
 }
