@@ -163,44 +163,57 @@ public:
 
 
 	void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
+        ROS_INFO("received path to unknown part of the maze");
 		followsPath = true;
 		path.clear();
 		for(size_t i = 0; i < msg->points.size(); i++){
 			path.push_back(msg->points[i]);
-		}
+            ROS_INFO("(%f, %f)", msg->points[i].x, msg->points[i].y);
+        }
+        targetPos.x = curPosOri.linear.x;
+        targetPos.y = curPosOri.linear.y;
+        return;
 	}
 	
 	//From still, decide what the next mode should be
 	int decideNextMode() {
 		
 		if (followsPath) {
+            ROS_INFO("following path");
 			
-			if (path.empty()) {
+//			if (path.empty()) {
 
-				//Simple hack for testing maze exploration -- FIX LATER!!!
-				followsPath = false;
-				return STILL;
+//				//Simple hack for testing maze exploration -- FIX LATER!!!
+//				followsPath = false;
+//				return STILL;
 
-				//Find a path to the new goal
-				mapper::PathToObject srv;
-				srv.request.start.x = curPosOri.linear.x;
-				srv.request.start.y = curPosOri.linear.y;
-				srv.request.object.data = goalObject.c_str();	//Dummy object
+//				//Find a path to the new goal
+//				mapper::PathToObject srv;
+//				srv.request.start.x = curPosOri.linear.x;
+//				srv.request.start.y = curPosOri.linear.y;
+//				srv.request.object.data = goalObject.c_str();	//Dummy object
 				
-				if (pathClient.call(srv)) {
-					path.clear();
-					for (int i = 0;i<srv.response.length.data;++i) {
-						path.push_back(srv.response.path[i]);
-					}
-				}
-			}
+//				if (pathClient.call(srv)) {
+//					path.clear();
+//					for (int i = 0;i<srv.response.length.data;++i) {
+//						path.push_back(srv.response.path[i]);
+//					}
+//				}
+//			}
 			
 			
 			//Check if we have arrived
 			if (fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT && 
 			fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT) {
 				//Close enough
-				
+                ROS_INFO("reached node (%f, %f)", targetPos.x, targetPos.y);
+
+                if(path.empty()){
+                    mode = STRAIGHT_FORWARD;
+                    followsPath = false;
+                    return mode;
+                }
+
 				//Compute direction to next node
 				geometry_msgs::Point next = path.front();
 				int dir;
@@ -229,18 +242,18 @@ public:
 				if (dir == curDir) {	//No turn required
 					targetPos = path.front();
 					path.pop_front();
-					if (path.empty()) {
-						//We are facing the final node, which should hold the object.
-						//We shouldn't go there - just observe from where we are standing.
-						//TODO Decide what to do next. I don't know if we will be given a new object
-						//to find the path to, or if something else should be done.
+                    mode = STRAIGHT_FORWARD;
+//					if (path.empty()) {
+//						//We are facing the final node, which should hold the object.
+//						//We shouldn't go there - just observe from where we are standing.
+//						//TODO Decide what to do next. I don't know if we will be given a new object
+//						//to find the path to, or if something else should be done.
 						
-						mode = STRAIGHT_FORWARD;
+//						mode = STRAIGHT_FORWARD;
 						
-						followsPath = false; //for testing, probably needed to be changed
-					} else {
-						mode = STRAIGHT_FORWARD;
-					}
+//					} else {
+//						mode = STRAIGHT_FORWARD;
+//					}
 				} else if (dir == (curDir+1)%4) {	//Rotate left
 					mode = LEFT_ROTATE;
 				} else if ((dir+1)%4 == curDir) {	//Rotate right
@@ -353,7 +366,7 @@ public:
 		}
 		switch (mode) {
 					
-			case STILL:
+            case STILL:
 				//Rohit: When in still, decide upon the next mode based on the previous mode
 				decideNextMode();
 				break;
