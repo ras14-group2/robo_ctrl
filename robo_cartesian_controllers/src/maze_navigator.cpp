@@ -345,47 +345,9 @@ public:
 
 
 			case LEFT_WALL_FOLLOW:
-		/*
-				if ((in_ir.front_left>25) && (in_ir.back_left>25)){								
-					if (leftBool == true){
-					//Advertise node creation request for left open spaces before still
-					if (!followsPath) {
-						geometry_msgs::Point p;
-						p.x = curPosOri.linear.x;
-						p.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p);
-						leftBool = false;
-					} else {
-						//TODO Check if have arrived at the targetPoint
-					}
-		*/
-//				}
-//				}
-				if (in_ir.front_left>25){
-					if (!followsPath) {
+		if (in_ir.front_left>25){
+				if (!followsPath) {
 						if(leftBool1 == true){
-/*<<<<<<< HEAD
-//not sure which version is right, please check
-							p1_left.x = curPosOri.linear.x;
-							p1_left.y = curPosOri.linear.y;
-							leftBool1 = false;
-							leftBool2 = true;
-						}
-					
-						if(leftBool2 == true){
-							if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
-								p2_left.x = curPosOri.linear.x;
-								p2_left.y = curPosOri.linear.y;
-								node_creation_publisher_.publish(p2_left);
-								leftBool1 = true;
-								leftBool2 = false;
-							}
-						}
-					} else {
-						//TODO Check if have arrived at the targetPoint
-					}
-				}
-=======*/
 						p1_left.x = curPosOri.linear.x;
 						p1_left.y = curPosOri.linear.y;
 						leftBool1 = false;
@@ -427,7 +389,6 @@ public:
 					
 					}
 					
-//>>>>>>> worked on node publishing for topological map
 //				if ((in_ir.front_right>25) && (in_ir.back_right>25)){
 //				if (rightBool == true){							
 //					//Advertise node creation request for right open spaces before still
@@ -454,7 +415,10 @@ public:
 					
 					//Advertise node creation request
 					if (!followsPath) {
-						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -488,26 +452,14 @@ public:
 
 			case RIGHT_WALL_FOLLOW:
 				if (in_ir.front_right>25){
-					if (!followsPath) {
+				if (!followsPath) {
 						if(rightBool1 == true){
-							p1_right.x = curPosOri.linear.x;
-							p1_right.y = curPosOri.linear.y;
-							rightBool1 = false;
-							rightBool2 = true;
-						}
+						p1_right.x = curPosOri.linear.x;
+						p1_right.y = curPosOri.linear.y;
+						rightBool1 = false;
+						rightBool2 = true;
+					}
 					
-/*<<<<<<< HEAD
-						if(rightBool2 == true){
-							if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
-								p2_right.x = curPosOri.linear.x;
-								p2_right.y = curPosOri.linear.y;
-								node_creation_publisher_.publish(p2_right);
-								leftBool1 = true;
-								leftBool2 = false;
-							}
-						}
-=======*/
-//not sure which version is right, please check
 					
 					} else {
 						//TODO Check if have arrived at the targetPoint
@@ -522,8 +474,6 @@ public:
 						leftBool2 = true;
 						ROS_INFO("In p1 left condition");
 					}
-
-//>>>>>>> worked on node publishing for topological map
 					
 					if(leftBool2 == true){
 				if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
@@ -534,17 +484,21 @@ public:
 						leftBool2 = false;
 					}
 					}
+					
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
-				}
+					}
 			
 			
 /*				if ((in_ir.front_left>25) && (in_ir.back_left>25)){								
 					if (leftBool == true){
 					//Advertise node creation request for left open spaces before still
 					if (!followsPath) {
-						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
 						leftBool = false;
 					} else {
 						//TODO Check if have arrived at the targetPoint
@@ -556,7 +510,10 @@ public:
 				if (rightBool == true){						
 					//Advertise node creation request for right open spaces before still
 					if (!followsPath) {
-						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
 						rightBool =	 false;
 					} else {
 						//TODO Check if have arrived at the targetPoint
@@ -574,7 +531,10 @@ public:
 					
 					//Advertise node creation request
 					if (!followsPath) {
-						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
+						geometry_msgs::Point p;
+						p.x = curPosOri.linear.x;
+						p.y = curPosOri.linear.y;
+						node_creation_publisher_.publish(p);
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -588,15 +548,15 @@ public:
 		//			rightBool= true;
 					break;
 				}		
-				
-				
+			  
+			  
 				irav = 0.5*(in_ir.front_right + in_ir.back_right);
 				irdiff = in_ir.front_right - in_ir.back_right;
 				
 				out_twist.angular.z = - alpha * (irdiff);// [m/s]
 				if(fabs(MINDIST-irav) > 0.5)		
 					out_twist.angular.z += alpha1 * (-irav + MINDIST);
-				//out_twist.angular.z = alpha * ( MINDIST - (irav)	- (alpha1 * irdiff)); // [m/s]
+				//out_twist.angular.z = alpha * ( MINDIST - (irav)  - (alpha1 * irdiff)); // [m/s]
 				out_twist.linear.x = v;
 				//w = alpha * (MINDIST-0.5(in_ir.front_right+in_ir.back_right) + 2*(ir[2]-ir[3]));
 				break;
