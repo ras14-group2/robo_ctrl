@@ -113,6 +113,7 @@ add_executable(maze_mapping src/maze_mapping.cpp)
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(maze_navigator mapper_generate_messages_cpp)
 
+
 ## Specify libraries to link a library or executable target against
  target_link_libraries(line_cartesian_controller
    ${catkin_LIBRARIES}
