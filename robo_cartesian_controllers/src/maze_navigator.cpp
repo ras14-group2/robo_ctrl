@@ -149,14 +149,14 @@ public:
 	}
 
 
-    void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
-        followsPath = true;
-        path.clear();
-        for(size_t i = 0; i < msg->points.size(); i++){
-            path.push_back(msg->points[i]);
-        }
-    }
-    
+	void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
+		followsPath = true;
+		path.clear();
+		for(size_t i = 0; i < msg->points.size(); i++){
+			path.push_back(msg->points[i]);
+		}
+	}
+	
 	//From still, decide what the next mode should be
 	int decideNextMode() {
 		
@@ -454,14 +454,7 @@ public:
 					
 					//Advertise node creation request
 					if (!followsPath) {
-/*<<<<<<< HEAD
 						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
-=======*/
-//not sure which version is right, please check
-						geometry_msgs::Point p;
-						p.x = curPosOri.linear.x;
-						p.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p);
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -643,35 +636,36 @@ public:
 			case STRAIGHT_FORWARD:
 				//TODO
 				if (in_ir.front_right>25){
-				if (prevmode == RIGHT_WALL_FOLLOW){
-				if(rightBool2 == true){
-		if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
-						p2_right.x = curPosOri.linear.x;
-						p2_right.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p2_right);
-						rightBool1 = true;
-						rightBool2 = false;
+					if (prevmode == RIGHT_WALL_FOLLOW){
+						if(rightBool2 == true){
+							if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
+								advertize_node();
+								p2_right.x = curPosOri.linear.x;
+								p2_right.y = curPosOri.linear.y;
+								node_creation_publisher_.publish(p2_right);
+								rightBool1 = true;
+								rightBool2 = false;
+							}
+						}
 					}
-					}
-				}
 				}
 				
 				if (in_ir.front_left>25){
-				if (prevmode == LEFT_WALL_FOLLOW){
-				if(leftBool2 == true){
-		if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
-						p2_left.x = curPosOri.linear.x;
-						p2_left.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p2_left);
-						leftBool1 = true;
-						leftBool2 = false;
+					if (prevmode == LEFT_WALL_FOLLOW){
+						if(leftBool2 == true){
+							if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
+								p2_left.x = curPosOri.linear.x;
+								p2_left.y = curPosOri.linear.y;
+								node_creation_publisher_.publish(p2_left);
+								leftBool1 = true;
+								leftBool2 = false;
+							}
+						}
 					}
-					}
-				}
 				}
 				
 				if (in_ir.front_center < STOPDIST || wallInFront) {
-		//		if (in_ir.front_center < STOPDIST) {
+				//if (in_ir.front_center < STOPDIST) {
 					prevmode=mode;
 					mode = STILL;	//Stop
 					
@@ -734,8 +728,8 @@ public:
 		twist_publisher_.publish(out_twist);
 		mode_publisher_.publish(out_mode);
 		prev_mode_publisher_.publish(out_previous_mode);
-	//	ROS_INFO("the linear twist is = %lf", out_twist.linear.x);
-	//	ROS_INFO("the twist is = %lf", out_twist.angular.z);
+		//ROS_INFO("the linear twist is = %lf", out_twist.linear.x);
+		//ROS_INFO("the twist is = %lf", out_twist.angular.z);
 		ROS_INFO("The current mode is %s", MODE_NAMES[mode]);
 		ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
 	}
