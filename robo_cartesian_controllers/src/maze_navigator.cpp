@@ -26,7 +26,7 @@
 
 #define IR_SHORT_LIMIT 25
 
-#define NODE_DIST_LIMIT 0.2
+#define NODE_DIST_LIMIT 0.1
 
 //Controller modes
 #define STILL 0
@@ -227,7 +227,9 @@ public:
 						//We shouldn't go there - just observe from where we are standing.
 						//TODO Decide what to do next. I don't know if we will be given a new object
 						//to find the path to, or if something else should be done.
-
+						
+						mode = STRAIGHT_FORWARD;
+						
 						followsPath = false; //for testing, probably needed to be changed
 					} else {
 						mode = STRAIGHT_FORWARD;
@@ -378,19 +380,18 @@ public:
 			
 				
 				if(rightBool2 == true){
-		if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
+					if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
 						p2_right.x = curPosOri.linear.x;
 						p2_right.y = curPosOri.linear.y;
 						node_creation_publisher_.publish(p2_right);
 						rightBool1 = true;
 						rightBool2 = false;
 					}
-					}
+				}
 			
-				
-					} else {
-						//TODO Check if have arrived at the targetPoint
-					}
+				} else {
+					//TODO Check if have arrived at the targetPoint
+				}
 					
 					
 					}
@@ -573,7 +574,7 @@ public:
 							if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
 								p2_right.x = curPosOri.linear.x;
 								p2_right.y = curPosOri.linear.y;
-								advertize_node(p2_right.x, p2_right.y);
+								advertize_node(p2_right.x, p2_right.y, );
 								rightBool1 = true;
 								rightBool2 = false;
 							}
@@ -654,6 +655,15 @@ public:
 				}	
 				break;
 		}
+		
+		if ((mode == LEFT_WALL_FOLLOW || mode == RIGHT_WALL_FOLLOW || mode == STRAIGHT_LINE) && followsPath) {
+			if (fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT && 
+			fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT) {
+				//We have arrived
+				mode = STILL;
+			}
+		}
+		
 		out_mode.data=mode;
 		out_previous_mode.data=prevmode;
 		twist_publisher_.publish(out_twist);
