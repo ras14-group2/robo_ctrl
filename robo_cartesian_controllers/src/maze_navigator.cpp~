@@ -26,7 +26,7 @@
 
 #define IR_SHORT_LIMIT 25
 
-#define NODE_DIST_LIMIT 0.2
+#define NODE_DIST_LIMIT 0.1
 
 //Controller modes
 #define STILL 0
@@ -574,7 +574,7 @@ public:
 							if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
 								p2_right.x = curPosOri.linear.x;
 								p2_right.y = curPosOri.linear.y;
-								advertize_node(p2_right.x, p2_right.y, );
+								advertize_node(p2_right.x, p2_right.y);
 								rightBool1 = true;
 								rightBool2 = false;
 							}

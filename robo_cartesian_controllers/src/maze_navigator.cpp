@@ -574,7 +574,7 @@ public:
 							if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
 								p2_right.x = curPosOri.linear.x;
 								p2_right.y = curPosOri.linear.y;
-								advertize_node(p2_right.x, p2_right.y, );
+								advertize_node(p2_right.x, p2_right.y);
 								rightBool1 = true;
 								rightBool2 = false;
 							}
@@ -656,7 +656,7 @@ public:
 				break;
 		}
 		
-		if ((mode == LEFT_WALL_FOLLOW || mode == RIGHT_WALL_FOLLOW || mode == STRAIGHT_LINE) && followsPath) {
+		if ((mode == LEFT_WALL_FOLLOW || mode == RIGHT_WALL_FOLLOW || mode == STRAIGHT_FORWARD) && followsPath) {
 			if (fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT && 
 			fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT) {
 				//We have arrived
