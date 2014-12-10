@@ -13,13 +13,10 @@
 #include <mapper/PathToUnknown.h>
 #include <cmath>
 #include <list>
-<<<<<<< HEAD
 // basic file operations
 #include <iostream>
 #include <cstdio>
 //#include <fstream>
-=======
->>>>>>> some IO removed + some stuff that maybe rohit did
 
 #include <robo_cartesian_controllers/Node.h>
 
@@ -110,12 +107,8 @@ public:
 	maze_navigator_node() : alpha(0.0175), alpha1(0.01), alpha_align(0.0195), v(.17), w(0), mode(STRAIGHT_FORWARD), prevmode(STRAIGHT_FORWARD), goalObject("red cube")
 	{
 		
-<<<<<<< HEAD
 		//pathClient = n_.serviceClient<mapper::PathToObject>("path_to_object");
 
-=======
-//		pathClient = n_.serviceClient<mapper::PathToObject>("path_to_object");
->>>>>>> some IO removed + some stuff that maybe rohit did
 		followsPath = false;
 		hasIR = false;
 		leftBool1 = false;
@@ -133,7 +126,7 @@ public:
 		//mode_publisher_ = n_.advertise<std_msgs::String>("/maze_navigator/mode", 1000);
 		mode_publisher_ = n_.advertise<std_msgs::Int16>("/maze_navigator/mode", 1000);
 		prev_mode_publisher_ = n_.advertise<std_msgs::Int16>("/maze_navigator/prevmode", 1000);
-		node_creation_publisher_ = n_.advertise<robo_ctrl::robo_cartesian_controllers::Node>("/node_creation", 100);
+		node_creation_publisher_ = n_.advertise<robo_cartesian_controllers::Node>("/node_creation", 100);
 
 		//service client
 		client = n_.serviceClient<mapper::WallInFront>("/wall_in_front");
@@ -161,27 +154,15 @@ public:
 		angle = curPosOri.angular.z;
 	}
 
-<<<<<<< HEAD
 
 	void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
-	//void pathToUnknownCallback(const std_msgs::Int32[]::ConstPtr &msg){
 		followsPath = true;
 		path.clear();
 		for(size_t i = 0; i < msg->points.size(); i++){
 			path.push_back(msg->points[i]);
 		}
 	}
-
-=======
-    void pathToUnknownCallback(const mapper::PathToUnknown::ConstPtr &msg){
-        followsPath = true;
-        path.clear();
-        for(size_t i = 0; i < msg->points.size(); i++){
-            path.push_back(msg->points[i]);
-        }
-    }
 	
->>>>>>> some IO removed + some stuff that maybe rohit did
 	//From still, decide what the next mode should be
 	int decideNextMode() {
 		
@@ -218,7 +199,6 @@ public:
 				int dir;
 				if (abs(curPosOri.linear.x - next.x) > abs(curPosOri.linear.y - next.y)) {
 					if (curPosOri.linear.x > next.x) {
-<<<<<<< HEAD
 						dir = 0;	//west
 					} else {
 						dir = 2;	//east
@@ -228,32 +208,16 @@ public:
 						dir = 1;	//south
 					} else {
 						dir = 3;	//north
-=======
-						dir = 2;	//west
-					} else {
-						dir = 0;	//east
-					}
-				} else {
-					if (curPosOri.linear.y > next.y) {
-						dir = 3;	//south
-					} else {
-						dir = 1;	//north
->>>>>>> some IO removed + some stuff that maybe rohit did
 					}
 				}
 				int curDir = (int)(floor(angle/(PI/2.0)+0.5));	//Find the closest NSWE orientation
 				if (curDir >= 0) {
 					curDir = curDir % 4;
 				} else {
-<<<<<<< HEAD
 					curDir = (curDir + 400000000) % 4;
 				}
 
 				ROS_INFO("current direction: %d, target direction: %d", curDir, dir);
-=======
-					curDir = (curDir + MAXINT) % 4;
-				}
->>>>>>> some IO removed + some stuff that maybe rohit did
 				
 				if (dir == curDir) {	//No turn required
 					targetPos = path.front();
@@ -263,11 +227,8 @@ public:
 						//We shouldn't go there - just observe from where we are standing.
 						//TODO Decide what to do next. I don't know if we will be given a new object
 						//to find the path to, or if something else should be done.
-<<<<<<< HEAD
 
 						followsPath = false; //for testing, probably needed to be changed
-=======
->>>>>>> some IO removed + some stuff that maybe rohit did
 					} else {
 						mode = STRAIGHT_FORWARD;
 					}
@@ -499,14 +460,7 @@ public:
 					
 					//Advertise node creation request
 					if (!followsPath) {
-<<<<<<< HEAD
 						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
-=======
-						geometry_msgs::Point p;
-						p.x = curPosOri.linear.x;
-						p.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p);
->>>>>>> some IO removed + some stuff that maybe rohit did
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -548,7 +502,7 @@ public:
 							rightBool2 = true;
 						}
 					
-<<<<<<< HEAD
+/*<<<<<<< HEAD
 						if(rightBool2 == true){
 							if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
 								p2_right.x = curPosOri.linear.x;
@@ -558,7 +512,8 @@ public:
 								leftBool2 = false;
 							}
 						}
-=======
+=======*/
+//not sure which version is right, please check
 					
 					} else {
 						//TODO Check if have arrived at the targetPoint
@@ -573,9 +528,8 @@ public:
 						leftBool2 = true;
 						ROS_INFO("In p1 left condition");
 					}
-<<<<<<< HEAD
->>>>>>> worked on node publishing for topological map
-=======
+
+//>>>>>>> worked on node publishing for topological map
 					
 					if(leftBool2 == true){
 				if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
@@ -586,8 +540,6 @@ public:
 						leftBool2 = false;
 					}
 					}
-					
->>>>>>> some IO removed + some stuff that maybe rohit did
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -690,35 +642,36 @@ public:
 			case STRAIGHT_FORWARD:
 				//TODO
 				if (in_ir.front_right>25){
-				if (prevmode == RIGHT_WALL_FOLLOW){
-				if(rightBool2 == true){
-		if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
-						p2_right.x = curPosOri.linear.x;
-						p2_right.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p2_right);
-						rightBool1 = true;
-						rightBool2 = false;
+					if (prevmode == RIGHT_WALL_FOLLOW){
+						if(rightBool2 == true){
+							if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
+								advertize_node();
+								p2_right.x = curPosOri.linear.x;
+								p2_right.y = curPosOri.linear.y;
+								node_creation_publisher_.publish(p2_right);
+								rightBool1 = true;
+								rightBool2 = false;
+							}
+						}
 					}
-					}
-				}
 				}
 				
 				if (in_ir.front_left>25){
-				if (prevmode == LEFT_WALL_FOLLOW){
-				if(leftBool2 == true){
-		if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
-						p2_left.x = curPosOri.linear.x;
-						p2_left.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p2_left);
-						leftBool1 = true;
-						leftBool2 = false;
+					if (prevmode == LEFT_WALL_FOLLOW){
+						if(leftBool2 == true){
+							if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
+								p2_left.x = curPosOri.linear.x;
+								p2_left.y = curPosOri.linear.y;
+								node_creation_publisher_.publish(p2_left);
+								leftBool1 = true;
+								leftBool2 = false;
+							}
+						}
 					}
-					}
-				}
 				}
 				
 				if (in_ir.front_center < STOPDIST || wallInFront) {
-		//		if (in_ir.front_center < STOPDIST) {
+				//if (in_ir.front_center < STOPDIST) {
 					prevmode=mode;
 					mode = STILL;	//Stop
 					
@@ -781,8 +734,8 @@ public:
 		twist_publisher_.publish(out_twist);
 		mode_publisher_.publish(out_mode);
 		prev_mode_publisher_.publish(out_previous_mode);
-	//	ROS_INFO("the linear twist is = %lf", out_twist.linear.x);
-	//	ROS_INFO("the twist is = %lf", out_twist.angular.z);
+		//ROS_INFO("the linear twist is = %lf", out_twist.linear.x);
+		//ROS_INFO("the twist is = %lf", out_twist.angular.z);
 		ROS_INFO("The current mode is %s", MODE_NAMES[mode]);
 		ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
 	}
@@ -809,12 +762,8 @@ int main(int argc, char **argv)
 		loop_rate.sleep();
 	}
 
-<<<<<<< HEAD
 	if(ros::isShuttingDown()){
 		//
 	}
-
-=======
->>>>>>> some IO removed + some stuff that maybe rohit did
 	return 0;
 }

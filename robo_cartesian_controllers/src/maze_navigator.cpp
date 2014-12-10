@@ -351,22 +351,7 @@ public:
 
 
 			case LEFT_WALL_FOLLOW:
-		/*
-				if ((in_ir.front_left>25) && (in_ir.back_left>25)){								
-					if (leftBool == true){
-					//Advertise node creation request for left open spaces before still
-					if (!followsPath) {
-						geometry_msgs::Point p;
-						p.x = curPosOri.linear.x;
-						p.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p);
-						leftBool = false;
-					} else {
-						//TODO Check if have arrived at the targetPoint
-					}
-		*/
-//				}
-//				}
+
 				if (in_ir.front_left>25){
 					if (!followsPath) {
 						if(leftBool1 == true){
