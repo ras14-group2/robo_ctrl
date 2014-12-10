@@ -18,6 +18,8 @@
 #include <cstdio>
 //#include <fstream>
 
+#include <robo_cartesian_controllers/Node.h>
+
 
 #define MINDIST 12	//12 centimeters
 #define STOPDIST 17	//17 centimeters
@@ -90,11 +92,15 @@ public:
 	//alpha(0.0245), alpha1(2.53586),
 
 	//Advertize a node creation request
-	void advertize_node(double x, double y, bool store=true) const {
-		geometry_msgs::Point p;
-		p.x = x;
-		p.y = y;
-		node_creation_publisher_.publish(p);
+	void advertize_node(double x, double y) const {
+		robo_cartesian_controllers::Node n;
+		n.x.data = x;
+		n.y.data = y;
+		n.west.data = true;
+		n.south.data = true;
+		n.east.data = true;
+		n.north.data = true;
+		node_creation_publisher_.publish(n);
 	}
 
 
@@ -120,7 +126,7 @@ public:
 		//mode_publisher_ = n_.advertise<std_msgs::String>("/maze_navigator/mode", 1000);
 		mode_publisher_ = n_.advertise<std_msgs::Int16>("/maze_navigator/mode", 1000);
 		prev_mode_publisher_ = n_.advertise<std_msgs::Int16>("/maze_navigator/prevmode", 1000);
-		node_creation_publisher_ = n_.advertise<geometry_msgs::Point>("/node_creation", 100);
+		node_creation_publisher_ = n_.advertise<robo_ctrl::robo_cartesian_controllers::Node>("/node_creation", 100);
 
 		//service client
 		client = n_.serviceClient<mapper::WallInFront>("/wall_in_front");
