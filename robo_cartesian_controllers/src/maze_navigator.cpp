@@ -356,45 +356,39 @@ public:
 				if (in_ir.front_left>25){
 					if (!followsPath) {
 						if(leftBool1 == true){
-						p1_left.x = curPosOri.linear.x;
-						p1_left.y = curPosOri.linear.y;
-						leftBool1 = false;
-						leftBool2 = true;
-						ROS_INFO("In p1 left condition");
-					}
+							p1_left.x = curPosOri.linear.x;
+							p1_left.y = curPosOri.linear.y;
+							leftBool1 = false;
+							leftBool2 = true;
+							ROS_INFO("In p1 left condition");
+						}
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
-					}
+				}
 					
-					if (in_ir.front_right>25){
+				if (in_ir.front_right>25){
 					if (!followsPath) {
 						if(rightBool1 == true){
-						p1_right.x = curPosOri.linear.x;
-						p1_right.y = curPosOri.linear.y;
-						rightBool1 = false;
-						rightBool2 = true;
-						ROS_INFO("In p1 left condition");
-					}
+							p1_right.x = curPosOri.linear.x;
+							p1_right.y = curPosOri.linear.y;
+							rightBool1 = false;
+							rightBool2 = true;
+							ROS_INFO("In p1 left condition");
+						}
 					
+						if(rightBool2 == true){
+							if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
+								advertize_node(curPosOri.linear.x, curPosOri.linear.y);
+								rightBool1 = true;
+								rightBool2 = false;
+							}
+						}
 			
-				
-				if(rightBool2 == true){
-					if((sqrt(pow((curPosOri.linear.x - p1_right.x),2) + pow((curPosOri.linear.y - p1_right.y),2))) > ROBOLENGTH){
-						p2_right.x = curPosOri.linear.x;
-						p2_right.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p2_right);
-						rightBool1 = true;
-						rightBool2 = false;
-					}
+					} else {
+						//TODO Check if have arrived at the targetPoint
+					}	
 				}
-			
-				} else {
-					//TODO Check if have arrived at the targetPoint
-				}
-					
-					
-					}
 					
 //				if ((in_ir.front_right>25) && (in_ir.back_right>25)){
 //				if (rightBool == true){							
@@ -411,6 +405,8 @@ public:
 //				}
 //				}
 				
+				ROS_ERROR("in_ir.front_center is %lf and STOPDIST is %d", in_ir.front_center, STOPDIST);
+				
 				if (in_ir.front_center<STOPDIST || wallInFront) {
 	//					if (in_ir.front_center<STOPDIST) {
 					prevmode=mode;
@@ -422,10 +418,7 @@ public:
 					
 					//Advertise node creation request
 					if (!followsPath) {
-						geometry_msgs::Point p;
-						p.x = curPosOri.linear.x;
-						p.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p);
+						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
@@ -482,9 +475,7 @@ public:
 					
 						if(leftBool2 == true){
 							if((sqrt(pow((curPosOri.linear.x - p1_left.x),2) + pow((curPosOri.linear.y - p1_left.y),2))) > ROBOLENGTH){
-								p2_left.x = curPosOri.linear.x;
-								p2_left.y = curPosOri.linear.y;
-								node_creation_publisher_.publish(p2_left);
+								advertize_node(curPosOri.linear.x, curPosOri.linear.y);
 								leftBool1 = true;
 								leftBool2 = false;
 							}
@@ -504,10 +495,7 @@ public:
 					
 					//Advertise node creation request
 					if (!followsPath) {
-						geometry_msgs::Point p;
-						p.x = curPosOri.linear.x;
-						p.y = curPosOri.linear.y;
-						node_creation_publisher_.publish(p);
+						advertize_node(curPosOri.linear.x, curPosOri.linear.y);
 					} else {
 						//TODO Check if have arrived at the targetPoint
 					}
