@@ -55,14 +55,31 @@ public:
 		
 		if(init && hasIR){
 			if(fl_ir < 25 && bl_ir < 25){
-				curAngle = M_PI_2 - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+				if(fl_ir < bl_ir){
+					double diff = bl_ir - fl_ir;
+					curAngle = M_PI_2 + std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+				}else if(fl_ir > bl_ir){
+					double diff = fl_ir - bl_ir;
+					curAngle = M_PI_2 - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+				}else{
+					curAngle = 0;
+				}
 			}
 			else if(fr_ir < 25 && br_ir < 25){
-				curAngle = std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+				if(fr_ir < br_ir){
+					double diff = br_ir - fr_ir;
+					curAngle = M_PI_2 - std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+				}else if(fr_ir > br_ir){
+					double diff = fr_ir - br_ir;
+					curAngle = M_PI_2 + std::atan2(diff, IR_SIDE_SENSOR_DISTANCE*100);
+				}else{
+					curAngle = 0;
+				}
 			}
 			init = false;
 		}
 
+		if(!init){
 		//Compute new angle and position
 		double ad = (denc1-denc2)*DEGTOM/WHEEL_BASE;
 		double ld = (denc1+denc2)*DEGTOM/2.0;
@@ -100,6 +117,7 @@ public:
 		posori_publisher_.publish(pomsg);
 		
 		//ROS_ERROR("curAngle is %lf", curAngle);
+		}
 	}
 
 	
@@ -119,7 +137,7 @@ public:
 		bl_ir = msg->back_left;
 		fr_ir = msg->front_right;
 		br_ir = msg->back_right;
-		
+
 		if((fabs(fl_ir - bl_ir)<.3)||(fabs(fr_ir - br_ir)<.3)){
 		ROS_INFO("adjusted angle");
 		curAngle = odomRelAngle;
