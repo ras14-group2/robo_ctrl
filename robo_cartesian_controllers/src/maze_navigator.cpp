@@ -209,6 +209,7 @@ public:
                 ROS_INFO("reached node (%f, %f)", targetPos.x, targetPos.y);
 
                 if(path.empty()){
+                		ROS_INFO("reached end of path - go to STRAIGHT_FORWARD");
                     mode = STRAIGHT_FORWARD;
                     followsPath = false;
                     return mode;
@@ -216,6 +217,8 @@ public:
 
 				//Compute direction to next node
 				geometry_msgs::Point next = path.front();
+				ROS_INFO("target position: (%f, %f)", next.x, next.y);
+				ROS_INFO("current position: (%f, %f)", curPosOri.linear.x, curPosOri.linear.y);
 				int dir;
 				if (abs(curPosOri.linear.x - next.x) > abs(curPosOri.linear.y - next.y)) {
 					if (curPosOri.linear.x > next.x) {
@@ -684,7 +687,7 @@ public:
 		//ROS_INFO("the linear twist is = %lf", out_twist.linear.x);
 		//ROS_INFO("the twist is = %lf", out_twist.angular.z);
 		ROS_INFO("The current mode is %s", MODE_NAMES[mode]);
-		ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
+		//ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
 	}
 };
 
