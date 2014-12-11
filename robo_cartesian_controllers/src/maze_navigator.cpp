@@ -233,8 +233,13 @@ public:
                     path.pop_front();
                     next = path.front();
 
+                    ROS_INFO("target position: (%f, %f)", next.x, next.y);
+                    ROS_INFO("current position: (%f, %f)", curPosOri.linear.x, curPosOri.linear.y);
                 }
+
 				int dir;
+                ROS_INFO("x diff: %d", abs(curPosOri.linear.x - next.x));
+                ROS_INFO("y diff: %d", abs(curPosOri.linear.y - next.y));
 				if (abs(curPosOri.linear.x - next.x) > abs(curPosOri.linear.y - next.y)) {
 					if (curPosOri.linear.x > next.x) {
 						dir = 0;	//west
