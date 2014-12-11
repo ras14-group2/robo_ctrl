@@ -182,7 +182,7 @@ public:
         out_twist.angular.z = 0.0;
 		
 		if (followsPath) {
-            ROS_INFO("following path");
+            ROS_ERROR("following path");
 			
 //			if (path.empty()) {
 
@@ -214,6 +214,7 @@ public:
                 if(path.empty()){
                     ROS_INFO("reached end of path - go to STRAIGHT_FORWARD");
                     mode = STRAIGHT_FORWARD;
+                    prevmode = STILL;
                     followsPath = false;
                     return mode;
                 }
@@ -229,6 +230,7 @@ public:
                     if(path.empty()){
                         ROS_INFO("reached end of path - go to STRAIGHT_FORWARD");
                         mode = STRAIGHT_FORWARD;
+                        prevmode = STILL;
                         followsPath = false;
                         return mode;
                     }
@@ -282,12 +284,15 @@ public:
 //					}
 				} else if (dir == (curDir+1)%4) {	//Rotate left
 					mode = LEFT_ROTATE;
+					prevmode = STILL;
                     targetAngle = floor((angle/(PI/2.0))+0.5) * PI/2.0 + PI/2.0;
 				} else if ((dir+1)%4 == curDir) {	//Rotate right
 					mode = RIGHT_ROTATE;
+					prevmode = STILL;
                     targetAngle = floor((angle/(PI/2.0))+0.5) * PI/2.0 - PI/2.0;
 				} else {	//Rotate left, continuing 180 degrees.
 					mode = LEFT_ROTATE;
+					prevmode = STILL;
                     targetAngle = floor((angle/(PI/2.0))+0.5) * PI/2.0 + PI/2.0;
 				}
 				
@@ -456,8 +461,8 @@ public:
 //				}
 //				}
 				
-				ROS_ERROR("in_ir.front_center is %lf and STOPDIST is %d", in_ir.front_center, STOPDIST);
-                ROS_INFO("wall in front: %s", wallInFront ? "true" : "false");
+//				ROS_ERROR("in_ir.front_center is %lf and STOPDIST is %d", in_ir.front_center, STOPDIST);
+//                ROS_INFO("wall in front: %s", wallInFront ? "true" : "false");
 				
 				if (in_ir.front_center<STOPDIST || wallInFront) {
 	//					if (in_ir.front_center<STOPDIST) {
@@ -754,8 +759,8 @@ public:
 		prev_mode_publisher_.publish(out_previous_mode);
 		//ROS_INFO("the linear twist is = %lf", out_twist.linear.x);
 		//ROS_INFO("the twist is = %lf", out_twist.angular.z);
-		ROS_INFO("The current mode is %s, angle is %lf", MODE_NAMES[mode], angle);
-		//ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
+		ROS_ERROR("The current mode is %s, angle is %lf", MODE_NAMES[mode], angle);
+		ROS_ERROR("The previous mode is %s", MODE_NAMES[prevmode]);
 	}
 };
 
