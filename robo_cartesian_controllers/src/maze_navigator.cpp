@@ -286,6 +286,72 @@ public:
 				}
 				
 			}
+            else if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT ||
+                    fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
+                //close in one direction - check robot orientation
+                double cosRot = cos(curPosOri.angular.z);
+                double cosBorder = cos(M_PI_4);
+                double sinRot = sin(curPosOri.angular.z);
+                double sinBorder = sin(M_PI_4);
+
+                if(cosRot >= cosBorder){
+                    //negative x axis
+                    if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT){
+                        //rotate
+                        if(targetPos.y < curPosOri.linear.y){
+                            //rotate to right
+                            mode = RIGHT_ROTATE;
+                        }
+                        else{
+                            //rotate to left
+                            mode = LEFT_ROTATE;
+                        }
+                    }
+
+                }
+                else if(cosRot <= -cosBorder){
+                    //positive x axis
+                    if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT){
+                        //rotate
+                        if(targetPos.y < curPosOri.linear.y){
+                            //rotate to left
+                            mode = LEFT_ROTATE;
+                        }
+                        else{
+                            //rotate to right
+                            mode = RIGHT_ROTATE;
+                        }
+                    }
+                }
+                else if(sinRot >= sinBorder){
+                    //negative y direction
+                    if(fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
+                        //rotate
+                        if(targetPos.x < curPosOri.linear.x){
+                            //rotate to right
+                            mode = RIGHT_ROTATE;
+                        }
+                        else{
+                            //rotate to left
+                            mode = LEFT_ROTATE;
+                        }
+                    }
+                }
+                else{
+                    //positive y direction
+                    if(fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
+                        //rotate
+                        if(targetPos.x < curPosOri.linear.x){
+                            //rotate to right
+                            mode = LEFT_ROTATE;
+                        }
+                        else{
+                            //rotate to right
+                            mode = RIGHT_ROTATE;
+                        }
+                    }
+                }
+            }
 
 			return mode;
 		}
@@ -692,11 +758,17 @@ public:
 		if ((mode == LEFT_WALL_FOLLOW || mode == RIGHT_WALL_FOLLOW || mode == STRAIGHT_FORWARD) && followsPath) {
             ROS_INFO("check if arrived at next node");
 			if (fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT && 
-			fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT) {
+            fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT) {
 				//We have arrived
                 ROS_INFO("arrived at node - go to STILL mode");
 				mode = STILL;
 			}
+            else if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT ||
+                    fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
+                //probably off path, close in one direction but not in the other, check if we need to turn
+                ROS_INFO("probably off path - check if we need to turn");
+                mode = STILL;
+            }
 		}
 		
 		out_mode.data=mode;
