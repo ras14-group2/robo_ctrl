@@ -754,7 +754,7 @@ public:
 		prev_mode_publisher_.publish(out_previous_mode);
 		//ROS_INFO("the linear twist is = %lf", out_twist.linear.x);
 		//ROS_INFO("the twist is = %lf", out_twist.angular.z);
-		ROS_INFO("The current mode is %s", MODE_NAMES[mode]);
+		ROS_INFO("The current mode is %s, angle is %lf", MODE_NAMES[mode], angle);
 		//ROS_INFO("The previous mode is %s", MODE_NAMES[prevmode]);
 	}
 };
