@@ -177,6 +177,9 @@ public:
 	
 	//From still, decide what the next mode should be
 	int decideNextMode() {
+
+        out_twist.linear.x = 0.0;
+        out_twist.angular.z = 0.0;
 		
 		if (followsPath) {
             ROS_INFO("following path");
@@ -279,10 +282,13 @@ public:
 //					}
 				} else if (dir == (curDir+1)%4) {	//Rotate left
 					mode = LEFT_ROTATE;
+                    targetAngle = floor((angle/(PI/2.0))+0.5) * PI/2.0 + PI/2.0;
 				} else if ((dir+1)%4 == curDir) {	//Rotate right
 					mode = RIGHT_ROTATE;
+                    targetAngle = floor((angle/(PI/2.0))+0.5) * PI/2.0 - PI/2.0;
 				} else {	//Rotate left, continuing 180 degrees.
 					mode = LEFT_ROTATE;
+                    targetAngle = floor((angle/(PI/2.0))+0.5) * PI/2.0 + PI/2.0;
 				}
 				
 			}
