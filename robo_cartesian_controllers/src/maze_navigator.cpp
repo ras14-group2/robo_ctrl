@@ -286,6 +286,8 @@ public:
 				}
 				
 			}
+            out_twist.linear.x = 0.0;
+            out_twist.angular.z = 0.0;
 			return mode;
 		}
 		
