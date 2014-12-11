@@ -182,28 +182,7 @@ public:
         out_twist.angular.z = 0.0;
 		
 		if (followsPath) {
-            ROS_ERROR("following path");
-			
-//			if (path.empty()) {
-
-//				//Simple hack for testing maze exploration -- FIX LATER!!!
-//				followsPath = false;
-//				return STILL;
-
-//				//Find a path to the new goal
-//				mapper::PathToObject srv;
-//				srv.request.start.x = curPosOri.linear.x;
-//				srv.request.start.y = curPosOri.linear.y;
-//				srv.request.object.data = goalObject.c_str();	//Dummy object
-				
-//				if (pathClient.call(srv)) {
-//					path.clear();
-//					for (int i = 0;i<srv.response.length.data;++i) {
-//						path.push_back(srv.response.path[i]);
-//					}
-//				}
-//			}
-			
+            ROS_INFO("following path");
 			
 			//Check if we have arrived
 			if (fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT && 
@@ -295,11 +274,8 @@ public:
 					prevmode = STILL;
                     targetAngle = floor((angle/(PI/2.0))+0.5) * PI/2.0 + PI/2.0;
 				}
-				
-			}
-            out_twist.linear.x = 0.0;
-            out_twist.angular.z = 0.0;
-			return mode;
+                return mode;
+			}			
 		}
 		
 		out_twist.linear.x = 0.0;
