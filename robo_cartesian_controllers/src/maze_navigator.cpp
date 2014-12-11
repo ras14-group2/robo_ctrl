@@ -241,9 +241,9 @@ public:
                 }
 
 				int dir;
-                ROS_INFO("x diff: %d", abs(curPosOri.linear.x - next.x));
-                ROS_INFO("y diff: %d", abs(curPosOri.linear.y - next.y));
-				if (abs(curPosOri.linear.x - next.x) > abs(curPosOri.linear.y - next.y)) {
+                ROS_INFO("x diff: %f", fabs(curPosOri.linear.x - next.x));
+                ROS_INFO("y diff: %f", fabs(curPosOri.linear.y - next.y));
+				if (fabs(curPosOri.linear.x - next.x) > fabs(curPosOri.linear.y - next.y)) {
 					if (curPosOri.linear.x > next.x) {
 						dir = 0;	//west
 					} else {
