@@ -286,73 +286,6 @@ public:
 				}
 				
 			}
-            else if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT ||
-                    fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
-                //close in one direction - check robot orientation
-                double cosRot = cos(curPosOri.angular.z);
-                double cosBorder = cos(M_PI_4);
-                double sinRot = sin(curPosOri.angular.z);
-                double sinBorder = sin(M_PI_4);
-
-                if(cosRot >= cosBorder){
-                    //negative x axis
-                    if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT){
-                        //rotate
-                        if(targetPos.y < curPosOri.linear.y){
-                            //rotate to right
-                            mode = RIGHT_ROTATE;
-                        }
-                        else{
-                            //rotate to left
-                            mode = LEFT_ROTATE;
-                        }
-                    }
-
-                }
-                else if(cosRot <= -cosBorder){
-                    //positive x axis
-                    if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT){
-                        //rotate
-                        if(targetPos.y < curPosOri.linear.y){
-                            //rotate to left
-                            mode = LEFT_ROTATE;
-                        }
-                        else{
-                            //rotate to right
-                            mode = RIGHT_ROTATE;
-                        }
-                    }
-                }
-                else if(sinRot >= sinBorder){
-                    //negative y direction
-                    if(fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
-                        //rotate
-                        if(targetPos.x < curPosOri.linear.x){
-                            //rotate to right
-                            mode = RIGHT_ROTATE;
-                        }
-                        else{
-                            //rotate to left
-                            mode = LEFT_ROTATE;
-                        }
-                    }
-                }
-                else{
-                    //positive y direction
-                    if(fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
-                        //rotate
-                        if(targetPos.x < curPosOri.linear.x){
-                            //rotate to right
-                            mode = LEFT_ROTATE;
-                        }
-                        else{
-                            //rotate to right
-                            mode = RIGHT_ROTATE;
-                        }
-                    }
-                }
-            }
-
 			return mode;
 		}
 		
@@ -763,11 +696,44 @@ public:
                 ROS_INFO("arrived at node - go to STILL mode");
 				mode = STILL;
 			}
-            else if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT ||
-                    fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
-                //probably off path, close in one direction but not in the other, check if we need to turn
-                ROS_INFO("probably off path - check if we need to turn");
-                mode = STILL;
+            else{
+                //node not reached - check if we are still on track
+
+                //check robot rotation
+                double cosRot = cos(curPosOri.angular.z);
+                double cosBorder = cos(M_PI_4);
+                double sinRot = sin(curPosOri.angular.z);
+                double sinBorder = sin(M_PI_4);
+
+                if(cosRot >= cosBorder || cosRot <= -cosBorder){
+                    //moving along x-axis
+                    if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT){
+                        //we are off
+
+                        //create new node in front of us
+                        geometry_msgs::Point newNode;
+                        newNode.x = targetPos.x;
+                        newNode.y = curPosOri.linear.y;
+                        ROS_INFO("off path - adding turning point at (%f, %f)", newNode.x, newNode.y);
+                        path.push_front(newNode);
+                        mode = STILL;
+                    }
+
+                }
+                else{
+                    //moving along y-axis
+                    if(fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
+                        //we are off
+
+                        //create new node in front of us
+                        geometry_msgs::Point newNode;
+                        newNode.x = curPosOri.linear.x;
+                        newNode.y = targetPos.y;
+                        ROS_INFO("off path - adding turning point at (%f, %f)", newNode.x, newNode.y);
+                        path.push_front(newNode);
+                        mode = STILL;
+                    }
+                }
             }
 		}
 		
