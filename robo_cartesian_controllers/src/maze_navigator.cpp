@@ -373,6 +373,7 @@ public:
 
 
 			case LEFT_WALL_FOLLOW:
+            ROS_INFO("case left wall follow");
 				if (in_ir.front_left>25){
 					if (!followsPath) {
 						if(leftBool1 == true){
@@ -426,6 +427,7 @@ public:
 //				}
 				
 				ROS_ERROR("in_ir.front_center is %lf and STOPDIST is %d", in_ir.front_center, STOPDIST);
+                ROS_INFO("wall in front: %s", wallInFront ? "true" : "false");
 				
 				if (in_ir.front_center<STOPDIST || wallInFront) {
 	//					if (in_ir.front_center<STOPDIST) {
@@ -665,9 +667,11 @@ public:
 		}
 		
 		if ((mode == LEFT_WALL_FOLLOW || mode == RIGHT_WALL_FOLLOW || mode == STRAIGHT_FORWARD) && followsPath) {
+            ROS_INFO("check if arrived at next node");
 			if (fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT && 
 			fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT) {
 				//We have arrived
+                ROS_INFO("arrived at node - go to STILL mode");
 				mode = STILL;
 			}
 		}
