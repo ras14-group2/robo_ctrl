@@ -709,12 +709,13 @@ public:
                     //moving along x-axis
                     if(fabs(curPosOri.linear.x - targetPos.x) <= NODE_DIST_LIMIT){
                         //we are off
+                        ROS_ERROR("off path - try to recover");
 
                         //create new node in front of us
                         geometry_msgs::Point newNode;
                         newNode.x = targetPos.x;
                         newNode.y = curPosOri.linear.y;
-                        ROS_INFO("off path - adding turning point at (%f, %f)", newNode.x, newNode.y);
+                        ROS_INFO("adding turning point at (%f, %f)", newNode.x, newNode.y);
                         path.push_front(newNode);
                         mode = STILL;
                     }
@@ -724,12 +725,13 @@ public:
                     //moving along y-axis
                     if(fabs(curPosOri.linear.y - targetPos.y) <= NODE_DIST_LIMIT){
                         //we are off
+                        ROS_ERROR("off path - try to recover");
 
                         //create new node in front of us
                         geometry_msgs::Point newNode;
                         newNode.x = curPosOri.linear.x;
                         newNode.y = targetPos.y;
-                        ROS_INFO("off path - adding turning point at (%f, %f)", newNode.x, newNode.y);
+                        ROS_INFO("adding turning point at (%f, %f)", newNode.x, newNode.y);
                         path.push_front(newNode);
                         mode = STILL;
                     }
